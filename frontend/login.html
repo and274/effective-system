@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智媒沙盘 - 登录</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap">
+  </noscript>
+  <link rel="stylesheet" href="./css/common.css">
+  <link rel="stylesheet" href="./css/logo.css">
+</head>
+<body>
+  <!-- 背景效果 -->
+  <canvas id="particles-canvas"></canvas>
+  <div class="gradient-bg"></div>
+  <div class="grid-overlay"></div>
+  <div class="scanline"></div>
+
+  <!-- Toast 提示 -->
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+    <span id="toast-message">操作成功</span>
+  </div>
+
+  <!-- 主内容 -->
+  <div class="page-container">
+    <div class="card">
+      <!-- Logo -->
+      <div class="logo-section">
+        <div class="logo-icon">
+          <div class="logo-svg-container">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- 外圈六边形 -->
+              <path class="logo-path-main" d="M32 4L56 18V46L32 60L8 46V18L32 4Z" 
+                    stroke="url(#gradient1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <!-- 内圈六边形 -->
+              <path class="logo-path-secondary" d="M32 14L46 22V38L32 46L18 38V22L32 14Z" 
+                    stroke="url(#gradient2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <!-- 中心圆点 -->
+              <circle class="logo-pulse-dot" cx="32" cy="30" r="3" fill="#00d4ff" filter="url(#glow)"/>
+              <!-- 连接线 -->
+              <line x1="32" y1="14" x2="32" y2="20" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="46" y1="22" x2="40" y2="26" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="46" y1="38" x2="40" y2="34" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="32" y1="46" x2="32" y2="40" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="18" y1="38" x2="24" y2="34" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="18" y1="22" x2="24" y2="26" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <!-- 渐变定义 -->
+              <defs>
+                <linearGradient id="gradient1" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#00d4ff"/>
+                  <stop offset="100%" stop-color="#a855f7"/>
+                </linearGradient>
+                <linearGradient id="gradient2" x1="18" y1="14" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#00d4ff"/>
+                  <stop offset="100%" stop-color="#3b82f6"/>
+                </linearGradient>
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <h1 class="logo-title">智媒沙盘</h1>
+        <p class="logo-subtitle">SMART MEDIA SANDBOX</p>
+      </div>
+
+      <!-- Tab 切换 -->
+      <div class="tabs">
+        <div class="tab-item active" data-tab="password">密码登录</div>
+        <div class="tab-item" data-tab="code">验证码登录</div>
+      </div>
+
+      <!-- 表单区域 -->
+      <div class="form-section">
+        <!-- 密码登录 -->
+        <div class="panel active" id="password-panel">
+          <form id="password-form">
+            <div class="input-group">
+              <label>账号</label>
+              <div class="input-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <input type="text" id="account-input" placeholder="手机号 / 邮箱 / 用户名" autocomplete="username">
+                <button type="button" class="clear-btn" onclick="AppUtils.clearInput('account-input')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>密码</label>
+              <div class="input-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <input type="password" id="password-input" placeholder="请输入密码" autocomplete="current-password">
+                <button type="button" class="toggle-password" onclick="AppUtils.togglePassword('password-input', this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-options">
+              <label class="remember-me">
+                <input type="checkbox" id="remember-account">
+                <span class="checkbox-custom">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </span>
+                <span>记住账号</span>
+              </label>
+              <label class="remember-me">
+                <input type="checkbox" id="auto-login">
+                <span class="checkbox-custom">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </span>
+                <span>7天自动登录</span>
+              </label>
+              <a class="link" onclick="AppModal.open('forgot-modal')">忘记密码？</a>
+            </div>
+
+            <button type="submit" class="btn-primary" id="password-submit-btn">登 录</button>
+          </form>
+
+          <div class="hint">
+            还没有账号？<a href="register.html">立即注册</a>
+          </div>
+        </div>
+
+        <!-- 验证码登录 -->
+        <div class="panel" id="code-panel">
+          <form id="code-form">
+            <div class="input-group">
+              <label>邮箱</label>
+              <div class="input-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <input type="email" id="email-input" placeholder="请输入邮箱地址" autocomplete="email">
+                <button type="button" class="clear-btn" onclick="AppUtils.clearInput('email-input')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>验证码</label>
+              <div class="code-input-wrapper">
+                <div class="input-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="text" id="code-input" placeholder="请输入验证码" maxlength="6" autocomplete="one-time-code">
+                </div>
+                <button type="button" class="send-code-btn" id="send-code-btn" onclick="sendCode()">发送验证码</button>
+              </div>
+            </div>
+
+            <div class="form-options">
+              <label class="remember-me">
+                <input type="checkbox" id="remember-email">
+                <span class="checkbox-custom">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </span>
+                <span>记住邮箱</span>
+              </label>
+              <a class="link" onclick="AppModal.open('forgot-modal')">忘记密码？</a>
+            </div>
+
+            <button type="submit" class="btn-primary" id="code-submit-btn">登 录</button>
+          </form>
+
+          <div class="hint">
+            还没有账号？<a href="register.html">立即注册</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 忘记密码模态框 -->
+  <div class="modal-overlay" id="forgot-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">找回密码</h3>
+        <button class="modal-close" onclick="AppModal.close('forgot-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <form id="forgot-form">
+        <div class="input-group">
+          <label>注册邮箱</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <input type="email" id="forgot-email" placeholder="请输入注册邮箱" required>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>验证码</label>
+          <div class="code-input-wrapper">
+            <div class="input-wrapper">
+              <input type="text" id="forgot-code" placeholder="请输入验证码" maxlength="6" required>
+            </div>
+            <button type="button" class="send-code-btn" id="forgot-send-btn" onclick="sendForgotCode()">发送验证码</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>新密码</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="forgot-password" placeholder="设置新密码（8-20位）" minlength="8" maxlength="20" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">重置密码</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 底部 -->
+  <div class="footer">
+    <p>中国传媒大学 · 大学生创新训练计划项目</p>
+  </div>
+
+  <script src="./js/common.js"></script>
+  <script src="./user-store.js"></script>
+  <script>
+    const userStore = window.AppUserStore;
+
+    // 初始化
+    AppParticles.init('particles-canvas');
+    AppTabs.init('.tabs');
+    AppModal.init();
+    initClearButtons();
+
+    // 检查是否已登录（自动登录）
+    (function checkAutoLogin() {
+      try {
+        const currentUserId = localStorage.getItem('app_current_user_id');
+        const autoLogin = localStorage.getItem('autoLogin') === 'true';
+        const autoLoginExpire = parseInt(localStorage.getItem('autoLoginExpire') || '0');
+        
+        if (currentUserId && autoLogin && Date.now() < autoLoginExpire) {
+          const users = userStore.loadUsers();
+          const user = users.find(u => u.id === currentUserId);
+          if (user) {
+            AppToast.show('欢迎回来，' + user.username + '，正在进入主界面...', 'success');
+            setTimeout(() => AppUtils.redirectToMain(), 1000);
+          }
+        }
+      } catch (e) {
+        console.error('自动登录检查失败:', e);
+      }
+    })();
+    // SMTP发送方邮箱（固定，用于发送验证码）
+    const SMTP_SENDER_EMAIL = '3906316120@qq.com';
+
+    // 获取用户输入的邮箱
+    function getUserEmail(inputId) {
+      const input = document.getElementById(inputId);
+      return input ? input.value.trim() : '';
+    }
+
+    // 发送验证码
+    async function sendCode() {
+      const email = getUserEmail('email-input');
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        AppToast.show('请输入有效的邮箱地址', 'error');
+        return;
+      }
+      await AppVerification.send(email, 'login', 'send-code-btn');
+    }
+
+    async function sendForgotCode() {
+      const email = getUserEmail('forgot-email');
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        AppToast.show('请输入有效的邮箱地址', 'error');
+        return;
+      }
+      await AppVerification.send(email, 'forgot', 'forgot-send-btn');
+    }
+
+    // 密码登录
+    document.getElementById('password-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const account = document.getElementById('account-input').value.trim();
+      const password = document.getElementById('password-input').value;
+
+      if (!account) { AppToast.show('请输入账号', 'error'); return; }
+      if (!password) { AppToast.show('请输入密码', 'error'); return; }
+
+      const btn = document.getElementById('password-submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span>登录中...';
+
+      const found = userStore.findUserByAccount(account);
+      if (!found) {
+        btn.disabled = false;
+        btn.textContent = '登 录';
+        AppToast.show('账号不存在', 'error');
+        return;
+      }
+
+      // 使用安全的密码验证
+      const isValid = await userStore.verifyPassword(password, found.password);
+      if (!isValid) {
+        btn.disabled = false;
+        btn.textContent = '登 录';
+        AppToast.show('账号或密码错误', 'error');
+        return;
+      }
+
+      // 升级旧密码（如果有）
+      if (found.password && !found.password.includes(':')) {
+        found.password = await userStore.upgradePasswordIfNeeded(found, password);
+      }
+
+      userStore.saveLoginSession(found);
+      AppToast.show('登录成功，正在进入主界面...', 'success');
+      AppUtils.redirectToMain();
+    });
+
+    document.getElementById('code-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = getUserEmail('email-input');
+      const code = document.getElementById('code-input').value.trim();
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        AppToast.show('请输入有效的邮箱地址', 'error');
+        return;
+      }
+      if (!code || code.length !== 6) {
+        AppToast.show('请输入6位验证码', 'error');
+        return;
+      }
+
+      const verify = AppVerification.verify(email, code, 'login');
+      if (!verify.ok) {
+        AppToast.show(verify.message, 'error');
+        return;
+      }
+
+      const btn = document.getElementById('code-submit-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span>验证中...';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = '登 录';
+        const found = userStore.findUserByEmail(email);
+        if (!found) {
+          AppToast.show('该邮箱未注册，请先注册账号', 'error');
+          return;
+        }
+        userStore.saveLoginSession(found);
+        AppToast.show('登录成功，正在进入主界面...', 'success');
+        AppUtils.redirectToMain();
+      }, 600);
+    });
+
+    document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = getUserEmail('forgot-email');
+      const code = document.getElementById('forgot-code').value.trim();
+      const password = document.getElementById('forgot-password').value;
+
+      if (!code || password.length < 8) {
+        AppToast.show('请填写完整信息', 'error');
+        return;
+      }
+
+      const verify = AppVerification.verify(email, code, 'forgot');
+      if (!verify.ok) {
+        AppToast.show(verify.message, 'error');
+        return;
+      }
+
+      const updated = await userStore.updateUserPasswordByEmail(email, password);
+      if (!updated.ok) {
+        AppToast.show(updated.message, 'error');
+        return;
+      }
+      AppToast.show('密码重置成功', 'success');
+      AppModal.close('forgot-modal');
+    });
+
+    // 记住账号
+    const savedAccount = localStorage.getItem('savedAccount');
+    if (savedAccount) {
+      document.getElementById('account-input').value = savedAccount;
+      document.getElementById('remember-account').checked = true;
+      document.querySelector('#account-input+.clear-btn')?.classList.add('visible');
+    }
+
+    document.getElementById('remember-account').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        localStorage.setItem('savedAccount', document.getElementById('account-input').value);
+      } else {
+        localStorage.removeItem('savedAccount');
+      }
+    });
+
+    // 记住邮箱（可编辑）
+    const savedEmail = localStorage.getItem('savedEmail');
+    if (savedEmail) {
+      const emailInput = document.getElementById('email-input');
+      if (emailInput) emailInput.value = savedEmail;
+    }
+
+    // 自动登录
+    document.getElementById('auto-login').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        localStorage.setItem('autoLogin', 'true');
+        localStorage.setItem('autoLoginExpire', Date.now() + 7 * 24 * 60 * 60 * 1000);
+      } else {
+        localStorage.removeItem('autoLogin');
+        localStorage.removeItem('autoLoginExpire');
+      }
+    });
+  </script>
+</body>
+</html>

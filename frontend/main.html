@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智媒沙盘 - 推演平台</title>
+  <link rel="stylesheet" href="./css/logo.css">
+  <style>
+    :root{--bg-primary:#0F172A;--bg-secondary:#1E293B;--bg-tertiary:#334155;--accent:#38BDF8;--accent-cyan:#00d4ff;--accent-purple:#a855f7;--accent-blue:#3b82f6;--accent-dim:rgba(56,189,248,.15);--success:#10B981;--danger:#F43F5E;--warning:#FBBF24;--purple:#8B5CF6;--text-primary:#F1F5F9;--text-secondary:#94A3B8;--border:#334155}
+    *{margin:0;padding:0;box-sizing:border-box} body{font-family:'Microsoft YaHei','Segoe UI',sans-serif;background:var(--bg-primary);color:var(--text-primary);height:100vh;overflow:hidden}
+    .particles{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle at 20% 20%,rgba(0,212,255,.15),transparent 40%),radial-gradient(circle at 80% 75%,rgba(168,85,247,.14),transparent 40%),linear-gradient(rgba(56,189,248,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.03) 1px,transparent 1px);background-size:auto,auto,40px 40px,40px 40px}
+    .app-container{position:relative;z-index:10;display:grid;grid-template-columns:240px 1fr 320px;grid-template-rows:auto 1fr auto;gap:16px;height:100vh;padding:16px}
+    .top-bar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(30,41,59,.72);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:12px}
+    .logo-section{display:flex;align-items:center;gap:12px}.logo-text{font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,#00d4ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    /* Top bar logo overrides (logo.css provides SVG animations) */
+    .top-bar .logo-section{padding:0;background:none;text-align:unset}
+    .top-bar .logo-icon{width:36px;height:36px;margin:0;filter:drop-shadow(0 0 8px rgba(0,212,255,.25))}
+    .top-bar .logo-icon::before{display:none}
+    .top-bar .logo-svg-container{width:30px;height:30px}
+    .top-bar .logo-svg-container svg{filter:drop-shadow(0 0 5px rgba(0,212,255,.3))}
+    .user-area{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;background:var(--bg-tertiary);border-radius:24px}.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--bg-primary);display:flex;align-items:center;justify-content:center;overflow:hidden}.user-avatar img{width:100%;height:100%;object-fit:cover}.user-name{font-size:13px;font-weight:500}
+    .left-panel,.right-panel{display:flex;flex-direction:column;gap:16px}.panel-card,.impact-card,.realtime-card{background:rgba(30,41,59,.72);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:12px;padding:16px}.panel-title{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+    .scenario-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;cursor:pointer}.scenario-dropdown{margin-top:10px;display:none;flex-direction:column;gap:6px}.scenario-dropdown.show{display:flex}.scenario-option{padding:10px 12px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;cursor:pointer}.scenario-option.selected{border-color:var(--accent);background:var(--accent-dim)}.scenario-option-name{font-weight:600;margin-bottom:2px}.scenario-option-desc{color:var(--text-secondary);font-size:10px}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.info-item.full{grid-column:span 2}.info-label{font-size:9px;color:var(--text-secondary);margin-bottom:2px;text-transform:uppercase}.info-value{font-size:12px;font-weight:500}.warning{color:var(--warning)}.danger{color:var(--danger)}
+    .left-panel .panel-card.history-entry{margin-top:auto}.header-btn{width:100%;justify-content:center;padding:10px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer}
+    .chat-section{display:flex;flex-direction:column;background:rgba(30,41,59,.58);border:1px solid var(--border);border-radius:12px;overflow:hidden}.chat-header{padding:12px 16px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.chat-header-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}.live-dot{width:8px;height:8px;background:var(--danger);border-radius:50%;animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}.chat-messages{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}.start-hint{margin:auto;text-align:center;color:var(--text-secondary)}.start-hint-icon{font-size:48px;opacity:.5;margin-bottom:10px}.message{max-width:80%}.message .content{padding:10px 14px;font-size:13px;line-height:1.6;border-radius:12px}.message.system{align-self:center}.message.system .content{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35)}.message.ai{align-self:flex-start}.message.ai .content{background:var(--bg-tertiary);border:1px solid var(--border)}.message.user{align-self:flex-end}.message.user .content{background:linear-gradient(135deg,var(--accent),#0EA5E9)}
+    .particle-chart{height:150px;background:var(--bg-primary);border-radius:8px;position:relative;overflow:hidden;margin-bottom:14px}.particle-node{position:absolute;border-radius:50%;animation:node-float 4s ease-in-out infinite}@keyframes node-float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8px,-8px) scale(1.08)}}
+    .indicator-list{display:flex;flex-direction:column;gap:10px}.indicator-item{display:flex;align-items:center;gap:10px}.indicator-label{width:72px;font-size:11px;color:var(--text-secondary)}.indicator-bar{flex:1;height:6px;background:var(--bg-primary);border-radius:3px;overflow:hidden}.indicator-fill{height:100%;transition:width .4s ease}.indicator-value{width:36px;text-align:right;font-size:11px;font-weight:600}
+    .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.data-item{text-align:center;padding:10px 6px;background:var(--bg-primary);border-radius:8px}.data-value{font-size:18px;font-weight:700;color:var(--accent)}.data-label{font-size:9px;color:var(--text-secondary);margin-top:2px}
+    .input-section{grid-column:1/-1;display:flex;gap:12px;align-items:flex-end;padding:12px 16px;background:rgba(30,41,59,.72);border:1px solid var(--border);border-radius:12px}.input-wrapper{flex:1}.input-field{width:100%;min-height:86px;max-height:300px;resize:vertical;line-height:1.6;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-family:inherit}.btn-start{padding:12px 24px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0EA5E9);color:#fff;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px}.btn-start.running{background:linear-gradient(135deg,var(--danger),#E11D48)}.btn-start.submit{background:linear-gradient(135deg,var(--success),#059669)}.btn-end{padding:12px 18px;border:1px solid rgba(244,63,94,.45);border-radius:10px;background:rgba(244,63,94,.15);color:#fecdd3;font-weight:600;cursor:pointer;display:none}.btn-end.show{display:inline-flex}
+    .history-drawer{position:fixed;top:0;right:-420px;width:420px;height:100vh;background:rgba(15,23,42,.98);border-left:1px solid var(--border);z-index:100;transition:right .3s ease;display:flex;flex-direction:column}.history-drawer.open{right:0}.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;display:none}.overlay.show{display:block}.drawer-header{padding:16px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.drawer-title{display:flex;align-items:center;gap:8px}.history-filter{display:flex;gap:6px}.history-filter-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-primary);color:var(--text-secondary);font-size:11px;cursor:pointer}.history-filter-btn.active{color:var(--text-primary);border-color:var(--accent);background:var(--accent-dim)}.drawer-body{flex:1;overflow-y:auto;padding:16px}.history-item{padding:12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;margin-bottom:10px}.history-empty{text-align:center;padding:40px;color:var(--text-secondary)}
+  </style>
+</head>
+<body>
+  <div class="particles"></div>
+  <div class="overlay" id="overlay" onclick="toggleHistory()"></div>
+  <div class="history-drawer" id="historyDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <span>📜 历史推演记录</span>
+        <div class="history-filter">
+          <button id="history-filter-all" class="history-filter-btn active" onclick="setHistoryFilter('all')">全部</button>
+          <button id="history-filter-scene" class="history-filter-btn" onclick="setHistoryFilter('scene')">当前场景</button>
+        </div>
+      </div>
+      <button class="header-btn" style="width:auto;padding:6px 10px" onclick="toggleHistory()">×</button>
+    </div>
+    <div class="drawer-body" id="historyList"><div class="history-empty">暂无推演记录</div></div>
+  </div>
+
+  <div class="app-container">
+    <header class="top-bar">
+      <div class="logo-section">
+        <div class="logo-icon"><div class="logo-svg-container"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="logo-path-main" d="M32 4L56 18V46L32 60L8 46V18L32 4Z" stroke="url(#m-gradient1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path class="logo-path-secondary" d="M32 14L46 22V38L32 46L18 38V22L32 14Z" stroke="url(#m-gradient2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle class="logo-pulse-dot" cx="32" cy="30" r="3" fill="#00d4ff" filter="url(#m-glow)"/><line x1="32" y1="14" x2="32" y2="20" stroke="url(#m-gradient2)" stroke-width="1" opacity="0.6"/><line x1="46" y1="22" x2="40" y2="26" stroke="url(#m-gradient2)" stroke-width="1" opacity="0.6"/><line x1="46" y1="38" x2="40" y2="34" stroke="url(#m-gradient2)" stroke-width="1" opacity="0.6"/><line x1="32" y1="46" x2="32" y2="40" stroke="url(#m-gradient2)" stroke-width="1" opacity="0.6"/><line x1="18" y1="38" x2="24" y2="34" stroke="url(#m-gradient2)" stroke-width="1" opacity="0.6"/><line x1="18" y1="22" x2="24" y2="26" stroke="url(#m-gradient2)" stroke-width="1" opacity="0.6"/><defs><linearGradient id="m-gradient1" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient><linearGradient id="m-gradient2" x1="18" y1="14" x2="46" y2="46" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient><filter id="m-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs></svg></div></div>
+        <span class="logo-text">智媒沙盘</span>
+      </div>
+      <div class="user-area"><div class="user-avatar" id="userAvatar">👤</div><div><div class="user-name" id="userName">加载中...</div></div></div>
+    </header>
+
+    <div class="left-panel">
+      <div class="panel-card">
+        <div class="panel-title">📦 场景库</div>
+        <button class="scenario-btn" onclick="toggleDropdown()"><span id="selectedName">🔥 火灾现场报道</span><span id="dropdownArrow">▼</span></button>
+        <div class="scenario-dropdown" id="scenarioDropdown">
+          <div class="scenario-option selected" data-scene="fire"><div class="scenario-option-name">🔥 火灾现场报道</div><div class="scenario-option-desc">突发火灾事件的新闻现场报道与舆论引导</div></div>
+          <div class="scenario-option" data-scene="pr"><div class="scenario-option-name">🚨 危机公关</div><div class="scenario-option-desc">企业突发危机的应急响应</div></div>
+          <div class="scenario-option" data-scene="public"><div class="scenario-option-name">📢 舆情引导</div><div class="scenario-option-desc">社交媒体舆论场引导</div></div>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-title">📋 场景信息</div>
+        <div class="info-grid">
+          <div class="info-item full"><div class="info-label">场景名称</div><div class="info-value" id="infoName">火灾现场报道</div></div>
+          <div class="info-item full"><div class="info-label">场景描述</div><div class="info-value" id="infoDesc">突发火灾事件的新闻现场报道与舆论引导</div></div>
+          <div class="info-item"><div class="info-label">默认火势</div><div class="info-value warning" id="infoFire">65%</div></div>
+          <div class="info-item"><div class="info-label">现场秩序</div><div class="info-value danger" id="infoOrder">混乱</div></div>
+          <div class="info-item"><div class="info-label">涉及区域</div><div class="info-value" id="infoArea">商业区</div></div>
+          <div class="info-item"><div class="info-label">伤亡情况</div><div class="info-value danger" id="infoCasualty">未知</div></div>
+        </div>
+      </div>
+      <div class="panel-card history-entry"><button class="header-btn" onclick="toggleHistory()">📜 历史推演</button></div>
+    </div>
+
+    <section class="chat-section">
+      <div class="chat-header"><div class="chat-header-title"><span class="live-dot"></span><span>推演会话</span></div><span id="chatStatus" style="font-size:11px;color:var(--text-secondary)">等待开始</span></div>
+      <div class="chat-messages" id="chatMessages"><div class="start-hint" id="startHint"><div class="start-hint-icon">🎬</div><div>选择场景后，点击「开始推演」</div></div></div>
+    </section>
+
+    <div class="right-panel">
+      <div class="impact-card">
+        <div class="panel-title">📊 决策影响</div>
+        <div class="particle-chart" id="particleChart"></div>
+        <div class="indicator-list">
+          <div class="indicator-item"><span class="indicator-label">舆论热度</span><div class="indicator-bar"><div class="indicator-fill" id="indSentiment" style="width:30%;background:var(--accent)"></div></div><span class="indicator-value" id="valSentiment">30</span></div>
+          <div class="indicator-item"><span class="indicator-label">报道影响</span><div class="indicator-bar"><div class="indicator-fill" id="indImpact" style="width:20%;background:var(--success)"></div></div><span class="indicator-value" id="valImpact">20</span></div>
+          <div class="indicator-item"><span class="indicator-label">公众信心</span><div class="indicator-bar"><div class="indicator-fill" id="indTrust" style="width:40%;background:var(--warning)"></div></div><span class="indicator-value" id="valTrust">40</span></div>
+          <div class="indicator-item"><span class="indicator-label">传播指数</span><div class="indicator-bar"><div class="indicator-fill" id="indSpread" style="width:15%;background:var(--purple)"></div></div><span class="indicator-value" id="valSpread">15</span></div>
+        </div>
+      </div>
+      <div class="realtime-card">
+        <div class="panel-title">📈 实时数据</div>
+        <div class="data-grid">
+          <div class="data-item"><div class="data-value" id="dataViewers">0</div><div class="data-label">在线观看</div></div>
+          <div class="data-item"><div class="data-value" id="dataComments">0</div><div class="data-label">评论数</div></div>
+          <div class="data-item"><div class="data-value" id="dataShares">0</div><div class="data-label">转发数</div></div>
+          <div class="data-item"><div class="data-value danger" id="dataAlert">低</div><div class="data-label">警报级别</div></div>
+</div>
+</div>
+</div>
+
+    <footer class="input-section"><div class="input-wrapper"><textarea class="input-field" id="inputField" placeholder="输入您的决策指令..." rows="1" oninput="autoResize(this)"></textarea></div><button class="btn-end" id="btnEnd" onclick="endSimulationEarly()">提前结束</button><button class="btn-start" id="btnStart" onclick="toggleSimulation()"><span id="btnIcon">▶</span><span id="btnText">开始推演</span></button></footer>
+</div>
+
+  <script src="./js/common.js"></script>
+  <script src="./user-store.js"></script>
+  <script>
+    // 登录状态校验
+    (function checkAuth() {
+      const user = window.AppUserStore.getCurrentUser();
+      if (!user) {
+        window.location.replace('./login.html');
+        return;
+      }
+    })();
+
+    let isRunning = false;
+    let isSending = false;
+    let currentScene = "fire";
+    let sessionId = "";
+    let latestState = null;
+    let latestSceneId = "zhimei";
+    let historyFilterMode = "all";
+    let currentExternalUser = "zhimei_dev_demo001";
+
+    function resolveApiBase() {
+      const query = new URLSearchParams(window.location.search);
+      const byQuery = (query.get("apiBase") || "").trim();
+      const byStorage = (localStorage.getItem("API_BASE") || "").trim();
+      const byGlobal = (window.__API_BASE__ || "").trim();
+      const fallback =
+        window.location.protocol === "file:" || window.location.port === "5500"
+          ? "http://127.0.0.1:5000"
+          : window.location.origin;
+      const resolved = byQuery || byStorage || byGlobal || fallback;
+      if (byQuery) {
+        localStorage.setItem("API_BASE", byQuery);
+      }
+      return resolved.replace(/\/$/, "");
+    }
+
+    const API_BASE = resolveApiBase();
+    const BACKEND_SCENE_MAP = { fire: "zhimei", pr: "zhimei", public: "zhimei" };
+
+    const sceneData = {
+      fire: { name: "火灾现场报道", desc: "突发火灾事件的新闻现场报道与舆论引导", fire: "65%", order: "混乱", area: "商业区", casualty: "未知" },
+      pr: { name: "危机公关", desc: "企业突发危机的应急响应", fire: "80%", order: "紧张", area: "总部", casualty: "无" },
+      public: { name: "舆情引导", desc: "社交媒体舆论场引导", fire: "70%", order: "波动", area: "多平台", casualty: "无" },
+    };
+
+    function createParticleChart() {
+      const c = document.getElementById("particleChart");
+      c.innerHTML = "";
+      const colors = ["#38BDF8", "#10B981", "#FBBF24", "#F43F5E", "#8B5CF6"];
+      for (let i = 0; i < 12; i++) {
+        const n = document.createElement("div");
+        n.className = "particle-node";
+        const s = 8 + Math.random() * 16;
+        n.style.width = `${s}px`;
+        n.style.height = `${s}px`;
+        n.style.left = `${5 + Math.random() * 80}%`;
+        n.style.top = `${5 + Math.random() * 80}%`;
+        n.style.background = colors[Math.floor(Math.random() * colors.length)];
+        n.style.opacity = 0.4 + Math.random() * 0.4;
+        c.appendChild(n);
+      }
+    }
+
+    function escapeHtml(text) {
+      return (text || "").replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+    }
+
+    function loadUserInfo() {
+      if (!window.AppUserStore) return;
+      const u = window.AppUserStore.getCurrentUser();
+      if (!u) return;
+      // externalUser = 用户唯一标识，优先取后端返回的 playerId 关联的 externalUser
+      const saved = JSON.parse(localStorage.getItem("app_session") || "null");
+      currentExternalUser = saved?.externalUser || String(u.id || u.userId || u.username || u.email || "");
+      // 恢复会话
+      if (saved?.sessionId && saved?.playerId) {
+        sessionId = saved.sessionId;
+        window.__playerId__ = saved.playerId;
+        latestSceneId = saved.sceneId || "zhimei";
+      }
+      document.getElementById("userName").textContent = u.username || u.name || "用户";
+      const a = document.getElementById("userAvatar");
+      const avatar = (u.avatar || "").trim();
+      if (
+        avatar &&
+        (avatar.startsWith("http://") ||
+          avatar.startsWith("https://") ||
+          avatar.startsWith("data:image/") ||
+          avatar.startsWith("blob:"))
+      ) {
+        a.innerHTML = `<img src="${avatar}" alt="avatar">`;
+      } else {
+        a.textContent = avatar || "👤";
+      }
+    }
+
+    function toggleDropdown() {
+      const d = document.getElementById("scenarioDropdown");
+      d.classList.toggle("show");
+      document.getElementById("dropdownArrow").textContent = d.classList.contains("show") ? "▲" : "▼";
+    }
+
+    function selectScene(scene) {
+      currentScene = scene;
+      const d = sceneData[scene];
+      document.querySelectorAll(".scenario-option").forEach((o) => o.classList.remove("selected"));
+      document.querySelector(`[data-scene="${scene}"]`).classList.add("selected");
+      document.getElementById("selectedName").textContent = `🔥 ${d.name}`;
+      document.getElementById("infoName").textContent = d.name;
+      document.getElementById("infoDesc").textContent = d.desc;
+      document.getElementById("infoFire").textContent = d.fire;
+      document.getElementById("infoOrder").textContent = d.order;
+      document.getElementById("infoArea").textContent = d.area;
+      document.getElementById("infoCasualty").textContent = d.casualty;
+      toggleDropdown();
+    }
+
+    function addMessage(type, content) {
+      const c = document.getElementById("chatMessages");
+      const m = document.createElement("div");
+      m.className = `message ${type}`;
+      m.innerHTML = `<div class="content">${escapeHtml(content)}</div>`;
+      c.appendChild(m);
+      c.scrollTop = c.scrollHeight;
+      return m;
+    }
+
+    function setAiDraftMessage(content = "") {
+      const c = document.getElementById("chatMessages");
+      let draft = c.querySelector('[data-draft="true"]');
+      if (!draft) {
+        draft = document.createElement("div");
+        draft.className = "message ai";
+        draft.setAttribute("data-draft", "true");
+        draft.innerHTML = '<div class="content"></div>';
+        c.appendChild(draft);
+      }
+      draft.querySelector(".content").textContent = content;
+      c.scrollTop = c.scrollHeight;
+      return draft;
+    }
+
+    function finalizeAiDraftMessage() {
+      const c = document.getElementById("chatMessages");
+      const draft = c.querySelector('[data-draft="true"]');
+      if (draft) draft.removeAttribute("data-draft");
+    }
+
+    function applyStateToPanel(state) {
+      if (!state) return;
+      latestState = state;
+      const metrics = state.dashboard_metrics || {};
+      const credibility = Number(state.credibility || 0);
+      const infoRate = Number(state.info_completion_rate || 0);
+      const rumors = Array.isArray(state.rumors_active) ? state.rumors_active.length : 0;
+      const reports = Number(state.reports_published || 0);
+
+      const publicSentiment = Number(metrics.public_sentiment ?? credibility);
+      const reportImpact = Number(metrics.report_impact ?? infoRate);
+      const publicTrust = Number(metrics.public_trust ?? Math.max(0, 100 - rumors * 20));
+      const spreadIndex = Number(metrics.spread_index ?? Math.min(100, reports * 20));
+
+      document.getElementById("indSentiment").style.width = `${publicSentiment}%`;
+      document.getElementById("valSentiment").textContent = Math.round(publicSentiment);
+      document.getElementById("indImpact").style.width = `${reportImpact}%`;
+      document.getElementById("valImpact").textContent = Math.round(reportImpact);
+      document.getElementById("indTrust").style.width = `${publicTrust}%`;
+      document.getElementById("valTrust").textContent = Math.round(publicTrust);
+      document.getElementById("indSpread").style.width = `${spreadIndex}%`;
+      document.getElementById("valSpread").textContent = Math.round(spreadIndex);
+
+      document.getElementById("dataViewers").textContent = Number(metrics.watchers ?? state.total_time_elapsed ?? 0);
+      document.getElementById("dataComments").textContent = Number(metrics.comments ?? rumors);
+      document.getElementById("dataShares").textContent = Number(metrics.shares ?? reports);
+      document.getElementById("dataAlert").textContent = String(metrics.alert_level ?? (state.game_over ? "结束" : "中"));
+
+      document.getElementById("infoFire").textContent = `${100 - infoRate}%`;
+      document.getElementById("infoOrder").textContent = credibility < 50 ? "紧张" : "可控";
+      document.getElementById("infoCasualty").textContent = `${rumors} 条谣言`;
+    }
+
+    function resetIndicators() {
+      ["Sentiment", "Impact", "Trust", "Spread"].forEach((k) => {
+        document.getElementById(`ind${k}`).style.width = "0%";
+        document.getElementById(`val${k}`).textContent = "0";
+      });
+      document.getElementById("dataViewers").textContent = "0";
+      document.getElementById("dataComments").textContent = "0";
+      document.getElementById("dataShares").textContent = "0";
+      document.getElementById("dataAlert").textContent = "低";
+    }
+
+    async function createBackendSession() {
+      const backendSceneId = BACKEND_SCENE_MAP[currentScene] || "zhimei";
+      const resp = await fetch(`${API_BASE}/api/session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ externalUser: currentExternalUser, scene_id: backendSceneId }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error?.message || "创建会话失败");
+      sessionId = data.sessionId;
+      window.__playerId__ = data.playerId; // 保存后端返回的 playerId
+      latestSceneId = data.sceneId || backendSceneId;
+      // 持久化 session
+      localStorage.setItem("app_session", JSON.stringify({
+        sessionId: data.sessionId,
+        playerId: data.playerId,
+        externalUser: data.externalUser || currentExternalUser,
+        sceneId: data.sceneId || backendSceneId,
+      }));
+      applyStateToPanel(data.state);
+    }
+
+    let realtimeTimer = null;
+
+    function startRealtimePoll() {
+      stopRealtimePoll();
+      if (!sessionId) return;
+      const poll = async () => {
+        try {
+          const resp = await fetch(`${API_BASE}/api/realtime/${sessionId}`);
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.state) applyStateToPanel(data.state);
+            if (data.game_over && isRunning) endSimulationEarly();
+          }
+        } catch (_) { /* ignore */ }
+      };
+      poll();
+      realtimeTimer = setInterval(poll, 8000);
+    }
+
+    function stopRealtimePoll() {
+      if (realtimeTimer) { clearInterval(realtimeTimer); realtimeTimer = null; }
+    }
+
+    async function toggleSimulation() {
+      try {
+        await createBackendSession();
+      } catch (err) {
+        addMessage("system", `❌ 无法连接后端：${err.message || err}`);
+        document.getElementById("chatStatus").textContent = "连接失败";
+        return;
+      }
+
+      isRunning = true;
+      const b = document.getElementById("btnStart");
+      const i = document.getElementById("btnIcon");
+      const t = document.getElementById("btnText");
+      const s = document.getElementById("chatStatus");
+      const h = document.getElementById("startHint");
+      const e = document.getElementById("btnEnd");
+      b.classList.add("running", "submit");
+      i.textContent = "📮";
+      t.textContent = "提交最终报道";
+      b.onclick = submitReport;
+      e.classList.add("show");
+      s.textContent = "推演中...";
+      if (h) h.style.display = "none";
+      addMessage("system", `🔥 推演已开始（场景: ${latestSceneId}）。请输入你的决策。`);
+      startRealtimePoll();
+    }
+
+    function endSimulationEarly() {
+      if (!isRunning) return;
+      isRunning = false;
+      const b = document.getElementById("btnStart");
+      const i = document.getElementById("btnIcon");
+      const t = document.getElementById("btnText");
+      const s = document.getElementById("chatStatus");
+      const e = document.getElementById("btnEnd");
+      b.classList.remove("running");
+      b.classList.add("submit");
+      i.textContent = "📮";
+      t.textContent = "提交最终报道";
+      b.onclick = submitReport;
+      e.classList.remove("show");
+      s.textContent = "已结束，待提交";
+      addMessage("system", "⏹ 已提前结束推演。请整理并提交最终报道。");
+      stopRealtimePoll();
+    }
+
+    async function submitReport() {
+      isRunning = false;
+      const b = document.getElementById("btnStart");
+      const e = document.getElementById("btnEnd");
+      b.classList.remove("running", "submit");
+      b.innerHTML = "<span>🔄</span><span>重新开始</span>";
+      b.onclick = resetSimulation;
+      e.classList.remove("show");
+      addMessage("system", "📮 报道已提交，感谢您的参与。");
+      await saveToHistory();
+      document.getElementById("chatStatus").textContent = "已完成";
+      stopRealtimePoll();
+    }
+
+    function resetSimulation() {
+      sessionId = "";
+      window.__playerId__ = null;
+      localStorage.removeItem("app_session");
+      latestState = null;
+      isRunning = false;
+      isSending = false;
+      const b = document.getElementById("btnStart");
+      const e = document.getElementById("btnEnd");
+      b.classList.remove("running", "submit");
+      b.innerHTML = "<span>▶</span><span>开始推演</span>";
+      b.onclick = toggleSimulation;
+      e.classList.remove("show");
+      document.getElementById("chatMessages").innerHTML =
+        '<div class="start-hint" id="startHint"><div class="start-hint-icon">🎬</div><div>选择场景后，点击「开始推演」</div></div>';
+      document.getElementById("chatStatus").textContent = "等待开始";
+      resetIndicators();
+      stopRealtimePoll();
+    }
+
+    function autoResize(el) {
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 300) + "px";
+    }
+
+    async function sendDecision() {
+      const input = document.getElementById("inputField");
+      const text = input.value.trim();
+      if (!text || !isRunning || isSending || !sessionId) return;
+      isSending = true;
+      addMessage("user", text);
+      input.value = "";
+      input.style.height = "auto";
+      document.getElementById("chatStatus").textContent = "回复生成中...";
+
+      try {
+        const response = await fetch(`${API_BASE}/api/chat/stream`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            playerId: window.__playerId__,
+            externalUser: currentExternalUser,
+            message: text,
+          }),
+        });
+        if (!response.ok || !response.body) throw new Error("流式请求失败");
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let currentEvent = "";
+        let aiText = "";
+        setAiDraftMessage("");
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const rawLine of lines) {
+            const line = rawLine.trim();
+            if (!line) continue;
+            if (line.startsWith("event: ")) {
+              currentEvent = line.slice(7).trim();
+              continue;
+            }
+            if (!line.startsWith("data: ")) continue;
+            const dataText = line.slice(6);
+            let data;
+            try {
+              data = JSON.parse(dataText);
+            } catch (_) {
+              continue;
+            }
+            if (currentEvent === "role") {
+              // NPC 角色信息：更新聊天头部状态
+              const roleName = data.name || data.title || "";
+              if (roleName) {
+                document.getElementById("chatStatus").textContent = `${roleName} 回复中...`;
+              }
+            } else if (currentEvent === "token") {
+              aiText += data.content || "";
+              setAiDraftMessage(aiText);
+            } else if (currentEvent === "state") {
+              applyStateToPanel(data);
+            } else if (currentEvent === "changes") {
+              const changes = (data.changes || []).join("；");
+              if (changes) addMessage("system", `状态变化：${changes}`);
+            } else if (currentEvent === "random_event") {
+              addMessage("system", `🎲 随机事件：${data.title || data.id || "未知事件"}`);
+            } else if (currentEvent === "npc_events") {
+              const events = data.npc_events || [];
+              events.forEach(ev => addMessage("system", `👤 NPC动态：${ev.title || ev.description || JSON.stringify(ev)}`));
+            } else if (currentEvent === "resolution") {
+              const results = data.resolution_results || [];
+              results.forEach(r => addMessage("system", `✅ 辟谣/核实结果：${r.title || r.description || JSON.stringify(r)}`));
+            } else if (currentEvent === "error") {
+              throw new Error(data.message || data.error || "流式处理失败");
+            }
+          }
+        }
+        finalizeAiDraftMessage();
+        document.getElementById("chatStatus").textContent = "推演中...";
+      } catch (err) {
+        finalizeAiDraftMessage();
+        addMessage("system", `❌ 请求失败：${err.message || err}`);
+        document.getElementById("chatStatus").textContent = "请求失败";
+      } finally {
+        isSending = false;
+      }
+    }
+
+    async function toggleHistory() {
+      document.getElementById("historyDrawer").classList.toggle("open");
+      document.getElementById("overlay").classList.toggle("show");
+      await loadHistory();
+    }
+
+    function setHistoryFilter(mode) {
+      historyFilterMode = mode === "scene" ? "scene" : "all";
+      document.getElementById("history-filter-all").classList.toggle("active", historyFilterMode === "all");
+      document.getElementById("history-filter-scene").classList.toggle("active", historyFilterMode === "scene");
+      loadHistory();
+    }
+
+    function renderHistory(records) {
+      const list = document.getElementById("historyList");
+      if (!records.length) {
+        list.innerHTML = '<div class="history-empty">暂无推演记录</div>';
+        return;
+      }
+      list.innerHTML = records
+        .map(
+          (x) =>
+            `<div class="history-item"><div>${escapeHtml(x.scene || x.summary || "-")}</div><div style="font-size:10px;color:var(--text-secondary);margin-top:6px">${escapeHtml(x.username || "-")} · ${escapeHtml(x.time || x.created_at || "-")} · 场景 ${escapeHtml(x.backendScene || x.scene_id || "-")} · 评分 ${escapeHtml(String(x.score ?? "-"))}</div></div>`
+        )
+        .join("");
+    }
+
+    async function saveToHistory() {
+      const scene = sceneData[currentScene] || sceneData.fire;
+      const score = Math.min(100, Math.max(0, Number(latestState?.credibility || 0)));
+      const records = JSON.parse(localStorage.getItem("history") || "[]");
+      const localRecord = {
+        id: Date.now(),
+        scene: scene.name,
+        backendScene: latestSceneId,
+        username: document.getElementById("userName").textContent,
+        time: new Date().toLocaleString(),
+        score,
+      };
+      records.unshift(localRecord);
+      localStorage.setItem("history", JSON.stringify(records.slice(0, 20)));
+      try {
+        await fetch(`${API_BASE}/api/history`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: sessionId,
+            scene_id: latestSceneId,
+            summary: scene.name,
+            username: localRecord.username,
+            score,
+            state_snapshot: latestState || {},
+          }),
+        });
+      } catch (_) {
+        // Keep local history as fallback when backend is unavailable.
+      }
+    }
+
+    async function loadHistory() {
+      const sceneQuery =
+        historyFilterMode === "scene"
+          ? `scene_id=${encodeURIComponent(latestSceneId)}&`
+          : "";
+      try {
+        const resp = await fetch(`${API_BASE}/api/history?${sceneQuery}limit=20`);
+        if (resp.ok) {
+          const payload = await resp.json();
+          const records = Array.isArray(payload.records) ? payload.records : [];
+          renderHistory(records);
+          return;
+        }
+      } catch (_) {
+        // Fallback below.
+      }
+      let localRecords = JSON.parse(localStorage.getItem("history") || "[]");
+      if (historyFilterMode === "scene") {
+        localRecords = localRecords.filter((item) => (item.backendScene || "") === latestSceneId);
+      }
+      renderHistory(localRecords);
+    }
+
+    document.querySelectorAll(".scenario-option").forEach((opt) =>
+      opt.addEventListener("click", () => selectScene(opt.dataset.scene))
+    );
+    document.getElementById("inputField").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendDecision();
+      }
+    });
+
+    createParticleChart();
+    loadUserInfo();
+    loadHistory();
+  </script>
+</body>
+</html>

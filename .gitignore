@@ -1,0 +1,14 @@
+﻿# Global ignores
+**/.env
+**/node_modules/
+**/__pycache__/
+**/.pytest_cache/
+**/task-summary_*.md
+
+# Optional local testing
+backend/tests/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智媒沙盘 - 注册</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap">
+  </noscript>
+  <link rel="stylesheet" href="./css/common.css">
+  <link rel="stylesheet" href="./css/logo.css">
+  <style>
+    /* 注册页特有样式 */
+    .avatar-section {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .avatar-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .avatar-picker {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px dashed rgba(0, 212, 255, 0.3);
+      border-radius: 16px;
+      transition: all 0.3s;
+    }
+
+    .avatar-picker:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .avatar-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin-bottom: 10px;
+      box-shadow: var(--glow-cyan);
+      transition: all 0.3s;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .avatar-picker:hover .avatar-preview {
+      transform: scale(1.05);
+      box-shadow: var(--glow-purple);
+    }
+
+    .avatar-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .avatar-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .avatar-option-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(100, 116, 139, 0.2);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      text-align: left;
+    }
+
+    .avatar-option-btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .avatar-option-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .avatar-option-text { flex: 1; }
+
+    .avatar-option-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .avatar-option-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .avatar-option-arrow svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- 背景效果 -->
+  <canvas id="particles-canvas"></canvas>
+  <div class="gradient-bg"></div>
+  <div class="grid-overlay"></div>
+  <div class="scanline"></div>
+
+  <!-- Toast 提示 -->
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+    <span id="toast-message">操作成功</span>
+  </div>
+
+  <!-- 头像选择弹窗 -->
+  <div class="modal-overlay" id="avatarModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">选择头像</h3>
+        <button class="modal-close" onclick="AppModal.close('avatarModal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="avatar-options">
+        <button class="avatar-option-btn" onclick="useDefaultAvatar()">
+          <div class="avatar-option-icon">😎</div>
+          <div class="avatar-option-text">
+            <div class="avatar-option-title">使用默认头像</div>
+            <div class="avatar-option-desc">直接使用卡通头像</div>
+          </div>
+          <div class="avatar-option-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </button>
+        <button class="avatar-option-btn" onclick="document.getElementById('avatarInput').click()">
+          <div class="avatar-option-icon">🖼️</div>
+          <div class="avatar-option-text">
+            <div class="avatar-option-title">自定义头像</div>
+            <div class="avatar-option-desc">从本地选择图片</div>
+          </div>
+          <div class="avatar-option-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 隐藏的文件输入 -->
+  <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarFile(this.files[0])">
+
+  <!-- 主内容 -->
+  <div class="page-container">
+    <div class="card">
+      <!-- Logo -->
+      <div class="logo-section">
+        <div class="logo-icon">
+          <div class="logo-svg-container">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- 外圈六边形 -->
+              <path class="logo-path-main" d="M32 4L56 18V46L32 60L8 46V18L32 4Z" 
+                    stroke="url(#gradient1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <!-- 内圈六边形 -->
+              <path class="logo-path-secondary" d="M32 14L46 22V38L32 46L18 38V22L32 14Z" 
+                    stroke="url(#gradient2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <!-- 中心圆点 -->
+              <circle class="logo-pulse-dot" cx="32" cy="30" r="3" fill="#00d4ff" filter="url(#glow)"/>
+              <!-- 连接线 -->
+              <line x1="32" y1="14" x2="32" y2="20" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="46" y1="22" x2="40" y2="26" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="46" y1="38" x2="40" y2="34" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="32" y1="46" x2="32" y2="40" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="18" y1="38" x2="24" y2="34" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <line x1="18" y1="22" x2="24" y2="26" stroke="url(#gradient2)" stroke-width="1" opacity="0.6"/>
+              <!-- 渐变定义 -->
+              <defs>
+                <linearGradient id="gradient1" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#00d4ff"/>
+                  <stop offset="100%" stop-color="#a855f7"/>
+                </linearGradient>
+                <linearGradient id="gradient2" x1="18" y1="14" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#00d4ff"/>
+                  <stop offset="100%" stop-color="#3b82f6"/>
+                </linearGradient>
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <h1 class="logo-title">智媒沙盘</h1>
+        <p class="logo-subtitle">SMART MEDIA SANDBOX</p>
+      </div>
+
+      <!-- 表单区域 -->
+      <div class="form-section">
+        <!-- 头像选择 -->
+        <div class="avatar-section">
+          <div class="avatar-label">选择头像</div>
+          <div class="avatar-picker" onclick="AppModal.open('avatarModal')">
+            <div class="avatar-preview" id="avatarPreview">😎</div>
+            <div class="avatar-hint">点击选择头像</div>
+          </div>
+        </div>
+
+        <!-- 注册表单 -->
+        <form id="register-form" onsubmit="handleRegister(event)">
+          <div class="input-group">
+            <label>邮箱</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <input type="email" id="email-input" placeholder="请输入邮箱地址" autocomplete="email" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>邮箱验证码</label>
+            <div class="code-input-wrapper">
+              <div class="input-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <input type="text" id="email-code-input" placeholder="请输入6位验证码" maxlength="6" autocomplete="one-time-code" required>
+              </div>
+              <button type="button" class="send-code-btn" id="send-code-btn" onclick="sendRegisterCode()">发送验证码</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>用户名</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <input type="text" id="username-input" placeholder="设置您的用户名" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>密码</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <input type="password" id="password-input" class="password-input" placeholder="设置登录密码" required>
+              <button type="button" class="toggle-password" onclick="AppUtils.togglePassword('password-input', this)" aria-label="显示或隐藏密码">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>确认密码</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <input type="password" id="confirm-password-input" class="password-input" placeholder="再次输入密码" required>
+              <button type="button" class="toggle-password" onclick="AppUtils.togglePassword('confirm-password-input', this)" aria-label="显示或隐藏确认密码">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">注册</button>
+        </form>
+
+        <div class="hint">
+          已有账号？<a href="login.html">立即登录</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 -->
+  <div class="footer">
+    <p>智媒沙盘 SMART MEDIA SANDBOX</p>
+  </div>
+
+  <script src="./js/common.js"></script>
+  <script src="./user-store.js"></script>
+  <script>
+    // 初始化
+    AppParticles.init('particles-canvas');
+    AppModal.init();
+
+    const userStore = window.AppUserStore;
+    // SMTP发送方邮箱（固定，用于发送验证码）
+    const SMTP_SENDER_EMAIL = '3906316120@qq.com';
+
+    // 当前头像状态
+    let currentAvatar = '😎';
+    let currentAvatarDataUrl = null;
+
+    // 获取用户输入的邮箱
+    function getUserEmail() {
+      const input = document.getElementById('email-input');
+      return input ? input.value.trim() : '';
+    }
+
+    // 头像相关函数
+    function useDefaultAvatar() {
+      currentAvatar = '😎';
+      currentAvatarDataUrl = null;
+      const preview = document.getElementById('avatarPreview');
+      preview.textContent = '😎';
+      preview.style.background = 'linear-gradient(135deg, var(--accent-cyan), var(--accent-purple))';
+      preview.style.backgroundImage = 'none';
+      AppModal.close('avatarModal');
+      AppToast.show('已选择默认头像', 'success');
+    }
+
+    function handleAvatarFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        AppToast.show('请选择图片文件', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentAvatarDataUrl = e.target.result;
+        currentAvatar = currentAvatarDataUrl;
+        const preview = document.getElementById('avatarPreview');
+        preview.textContent = '';
+        preview.style.backgroundImage = `url(${currentAvatarDataUrl})`;
+        preview.style.backgroundSize = 'cover';
+        preview.style.backgroundPosition = 'center';
+        AppModal.close('avatarModal');
+        AppToast.show('头像已更新', 'success');
+      };
+      reader.readAsDataURL(file);
+      document.getElementById('avatarInput').value = '';
+    }
+
+    // 发送验证码
+    async function sendRegisterCode() {
+      const email = getUserEmail();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        AppToast.show('请输入有效的邮箱地址', 'error');
+        return;
+      }
+      const existing = userStore.findUserByEmail(email);
+      if (existing) {
+        AppToast.show('该邮箱已注册，请直接登录', 'error');
+        return;
+      }
+      await AppVerification.send(email, 'register', 'send-code-btn');
+    }
+
+    // 注册处理
+    async function handleRegister(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username-input').value.trim();
+      const password = document.getElementById('password-input').value;
+      const confirmPwd = document.getElementById('confirm-password-input').value;
+      const email = getUserEmail();
+      const emailCode = document.getElementById('email-code-input').value.trim();
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        AppToast.show('请输入有效的邮箱地址', 'error');
+        return;
+      }
+      if (!username) {
+        AppToast.show('请输入用户名', 'error');
+        return;
+      }
+      if (username.length < 2) {
+        AppToast.show('用户名至少2个字符', 'error');
+        return;
+      }
+      if (password.length < 8) {
+        AppToast.show('密码至少8位', 'error');
+        return;
+      }
+      if (password !== confirmPwd) {
+        AppToast.show('两次密码输入不一致', 'error');
+        return;
+      }
+      if (!/^\d{6}$/.test(emailCode)) {
+        AppToast.show('请输入6位邮箱验证码', 'error');
+        return;
+      }
+
+      const verify = AppVerification.verify(email, emailCode, 'register');
+      if (!verify.ok) {
+        AppToast.show(verify.message, 'error');
+        return;
+      }
+
+      const btn = document.querySelector('#register-form button[type="submit"]');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span>注册中...';
+
+      const created = await userStore.createUser({
+        username,
+        email,
+        password,
+        avatar: currentAvatarDataUrl || currentAvatar,
+        role: '一线记者'
+      });
+
+      btn.disabled = false;
+      btn.textContent = '注册';
+
+      if (!created.ok) {
+        AppToast.show(created.message, 'error');
+        return;
+      }
+
+      AppToast.show('注册成功，正在跳转登录页...', 'success');
+      localStorage.removeItem('register_email_code');
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

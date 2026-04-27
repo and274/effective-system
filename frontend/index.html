@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智媒沙盘 | 入口</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      background: #030712;
+      color: #94a3b8;
+      font-family: 'Noto Sans SC', sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    .loading {
+      text-align: center;
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(0, 212, 255, 0.2);
+      border-top-color: #00d4ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    p { margin: 0; font-size: 14px; letter-spacing: 2px; }
+  </style>
+  <script>
+    // 检查是否已登录
+    (function() {
+      try {
+        const currentUserId = localStorage.getItem('app_current_user_id');
+        const autoLogin = localStorage.getItem('autoLogin') === 'true';
+        const autoLoginExpire = parseInt(localStorage.getItem('autoLoginExpire') || '0');
+        
+        // 如果有自动登录且未过期，直接跳转到主页面
+        if (currentUserId && autoLogin && Date.now() < autoLoginExpire) {
+          window.location.replace('./main.html');
+          return;
+        }
+      } catch (e) {
+        console.error('检查登录状态失败:', e);
+      }
+      // 默认跳转到登录页
+      window.location.replace('./login.html');
+    })();
+  </script>
+</head>
+<body>
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>正在进入智媒沙盘...</p>
+  </div>
+</body>
+</html>
