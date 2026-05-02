@@ -14,3 +14,6 @@ backend/tests/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# 仅本机 SSH 同步目标（含服务器地址；勿提交密钥）
+scripts/sync.env
