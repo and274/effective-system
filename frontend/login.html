@@ -273,17 +273,13 @@
     // 检查是否已登录（自动登录）
     (function checkAutoLogin() {
       try {
-        const currentUserId = localStorage.getItem('app_current_user_id');
+        const currentUser = userStore.getCurrentUser();
         const autoLogin = localStorage.getItem('autoLogin') === 'true';
         const autoLoginExpire = parseInt(localStorage.getItem('autoLoginExpire') || '0');
         
-        if (currentUserId && autoLogin && Date.now() < autoLoginExpire) {
-          const users = userStore.loadUsers();
-          const user = users.find(u => u.id === currentUserId);
-          if (user) {
-            AppToast.show('欢迎回来，' + user.username + '，正在进入主界面...', 'success');
-            setTimeout(() => AppUtils.redirectToMain(), 1000);
-          }
+        if (currentUser && currentUser.id && autoLogin && Date.now() < autoLoginExpire) {
+          AppToast.show('欢迎回来，' + (currentUser.username || '用户') + '，正在进入主界面...', 'success');
+          setTimeout(() => AppUtils.redirectToMain(), 1000);
         }
       } catch (e) {
         console.error('自动登录检查失败:', e);
@@ -330,7 +326,13 @@
       btn.disabled = true;
       btn.innerHTML = '<span class="loading-spinner"></span>登录中...';
 
-      const found = userStore.findUserByAccount(account);
+      const found = await userStore.findUserByAccount(account);
+      if (found && found.__lookupError) {
+        btn.disabled = false;
+        btn.textContent = '登 录';
+        AppToast.show(found.message || '账号服务不可用，请稍后重试', 'error');
+        return;
+      }
       if (!found) {
         btn.disabled = false;
         btn.textContent = '登 录';
@@ -338,26 +340,20 @@
         return;
       }
 
-      // 使用安全的密码验证
-      const isValid = await userStore.verifyPassword(password, found.password);
-      if (!isValid) {
+      const verifyPasswordResult = await userStore.verifyPassword(account, password);
+      if (!verifyPasswordResult.ok) {
         btn.disabled = false;
         btn.textContent = '登 录';
-        AppToast.show('账号或密码错误', 'error');
+        AppToast.show(verifyPasswordResult.message || '账号或密码错误', 'error');
         return;
       }
 
-      // 升级旧密码（如果有）
-      if (found.password && !found.password.includes(':')) {
-        found.password = await userStore.upgradePasswordIfNeeded(found, password);
-      }
-
-      userStore.saveLoginSession(found);
+      userStore.saveLoginSession(verifyPasswordResult.user || found);
       AppToast.show('登录成功，正在进入主界面...', 'success');
       AppUtils.redirectToMain();
     });
 
-    document.getElementById('code-form').addEventListener('submit', (e) => {
+    document.getElementById('code-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = getUserEmail('email-input');
       const code = document.getElementById('code-input').value.trim();
@@ -371,7 +367,7 @@
         return;
       }
 
-      const verify = AppVerification.verify(email, code, 'login');
+      const verify = await AppVerification.verify(email, code, 'login');
       if (!verify.ok) {
         AppToast.show(verify.message, 'error');
         return;
@@ -381,10 +377,14 @@
       btn.disabled = true;
       btn.innerHTML = '<span class="loading-spinner"></span>验证中...';
 
-      setTimeout(() => {
+      setTimeout(async () => {
         btn.disabled = false;
         btn.textContent = '登 录';
-        const found = userStore.findUserByEmail(email);
+        const found = await userStore.findUserByEmail(email);
+        if (found && found.__lookupError) {
+          AppToast.show(found.message || '邮箱服务不可用，请稍后重试', 'error');
+          return;
+        }
         if (!found) {
           AppToast.show('该邮箱未注册，请先注册账号', 'error');
           return;
@@ -406,7 +406,7 @@
         return;
       }
 
-      const verify = AppVerification.verify(email, code, 'forgot');
+      const verify = await AppVerification.verify(email, code, 'forgot');
       if (!verify.ok) {
         AppToast.show(verify.message, 'error');
         return;
@@ -436,13 +436,31 @@
         localStorage.removeItem('savedAccount');
       }
     });
+    document.getElementById('account-input').addEventListener('input', (e) => {
+      if (document.getElementById('remember-account').checked) {
+        localStorage.setItem('savedAccount', e.target.value || '');
+      }
+    });
 
     // 记住邮箱（可编辑）
     const savedEmail = localStorage.getItem('savedEmail');
     if (savedEmail) {
       const emailInput = document.getElementById('email-input');
       if (emailInput) emailInput.value = savedEmail;
+      document.getElementById('remember-email').checked = true;
     }
+    document.getElementById('remember-email').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        localStorage.setItem('savedEmail', document.getElementById('email-input').value || '');
+      } else {
+        localStorage.removeItem('savedEmail');
+      }
+    });
+    document.getElementById('email-input').addEventListener('input', (e) => {
+      if (document.getElementById('remember-email').checked) {
+        localStorage.setItem('savedEmail', e.target.value || '');
+      }
+    });
 
     // 自动登录
     document.getElementById('auto-login').addEventListener('change', (e) => {

@@ -38,8 +38,10 @@
 
 ```json
 {
-  "session_id": "a1b2c3d4",
-  "scene_id": "zhimei",
+  "sessionId": "a1b2c3d4",
+  "sceneId": "zhimei",
+  "externalUser": "frontend_user_001",
+  "playerId": "player_00001",
   "state": {},
   "message": "游戏会话已创建"
 }
@@ -53,7 +55,10 @@
 
 ```json
 {
-  "scene_id": "zhimei",
+  "sessionId": "a1b2c3d4",
+  "sceneId": "zhimei",
+  "externalUser": "frontend_user_001",
+  "playerId": "player_00001",
   "state": {}
 }
 ```
@@ -66,8 +71,10 @@
 
 ```json
 {
-  "session_id": "a1b2c3d4",
-  "scene_id": "zhimei",
+  "sessionId": "a1b2c3d4",
+  "playerId": "player_00001",
+  "externalUser": "frontend_user_001",
+  "sceneId": "zhimei",
   "message": "采访消防队长"
 }
 ```
@@ -76,8 +83,10 @@
 
 ```json
 {
-  "session_id": "a1b2c3d4",
-  "scene_id": "zhimei",
+  "sessionId": "a1b2c3d4",
+  "sceneId": "zhimei",
+  "externalUser": "frontend_user_001",
+  "playerId": "player_00001",
   "role": {
     "name": "消防队长老张",
     "color": "#F97316",
@@ -98,8 +107,10 @@
 
 ```json
 {
-  "session_id": "a1b2c3d4",
-  "scene_id": "zhimei",
+  "sessionId": "a1b2c3d4",
+  "playerId": "player_00001",
+  "externalUser": "frontend_user_001",
+  "sceneId": "zhimei",
   "message": "采访消防队长"
 }
 ```
@@ -137,7 +148,9 @@
 
 ## 8. 常见错误
 
-- `400 {"error": "消息不能为空"}`
-- `400 {"error": "未知场景: xxx"}`
-- `400 {"error": "scene_id 与现有会话不一致"}`
-- `404 {"error": "会话不存在"}`
+- `400 {"error":{"code":"EMPTY_MESSAGE","message":"消息不能为空"}}`
+- `400 {"error":{"code":"UNKNOWN_SCENE","message":"未知场景: xxx"}}`
+- `400 {"error":{"code":"SCENE_MISMATCH","message":"scene_id 与现有会话不一致"}}`
+- `403 {"error":{"code":"PLAYER_MISMATCH","message":"playerId 与 externalUser 不匹配"}}`
+- `404 {"error":{"code":"PLAYER_NOT_FOUND","message":"playerId 不存在"}}`
+- `404 {"error":{"code":"SESSION_NOT_FOUND","message":"会话不存在"}}`

@@ -1,5 +1,7 @@
 ﻿# Global ignores
 **/.env
+# Local user registry (password hashes); do not commit
+frontend/data/
 **/node_modules/
 **/__pycache__/
 **/.pytest_cache/

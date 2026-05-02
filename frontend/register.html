@@ -395,7 +395,11 @@
         AppToast.show('请输入有效的邮箱地址', 'error');
         return;
       }
-      const existing = userStore.findUserByEmail(email);
+      const existing = await userStore.findUserByEmail(email);
+      if (existing && existing.__lookupError) {
+        AppToast.show(existing.message || '邮箱服务不可用，请稍后重试', 'error');
+        return;
+      }
       if (existing) {
         AppToast.show('该邮箱已注册，请直接登录', 'error');
         return;
@@ -438,7 +442,7 @@
         return;
       }
 
-      const verify = AppVerification.verify(email, emailCode, 'register');
+      const verify = await AppVerification.verify(email, emailCode, 'register');
       if (!verify.ok) {
         AppToast.show(verify.message, 'error');
         return;

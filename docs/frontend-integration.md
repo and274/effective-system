@@ -85,6 +85,37 @@
 
 ---
 
+## 2.1 认证与验证码接口（新增）
+
+### 验证码发送与校验（Node）
+
+- `POST /mail-api/send-code`
+- `POST /mail-api/verify-code`
+
+请求示例：
+
+```json
+{ "toEmail": "user@example.com", "scene": "register" }
+```
+
+```json
+{ "email": "user@example.com", "scene": "register", "code": "123456" }
+```
+
+> ⚠️ 验证码现在由后端生成并校验，前端不再使用 localStorage 本地校验。
+
+### 账号接口（Node）
+
+- `POST /auth/register`
+- `POST /auth/verify-password`
+- `POST /auth/update-password`
+- `GET /auth/user-by-email?email=...`
+- `GET /auth/user-by-account?account=...`
+
+> ⚠️ 前端生产环境默认不再回退到 localStorage 账号认证；仅 `file://` 或 `localhost/127.0.0.1` 允许本地回退，便于离线演示。
+
+---
+
 ## 3. 错误码处理
 
 前端对所有非 2xx 响应统一用 Toast 显示 `data.error.message`，不区分具体错误码。
@@ -128,6 +159,8 @@
 - ✅ 后续每次请求自动带 playerId + externalUser
 - ✅ SSE 流式解析完成
 - ✅ 登录状态校验（未登录跳转 login.html）
+- ✅ 验证码改为后端生成/后端校验
+- ✅ 账号注册/登录/改密优先走后端认证接口
 
 ---
 

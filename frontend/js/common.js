@@ -363,33 +363,50 @@ const Tabs = {
 // 验证码系统
 // ============================================
 const VerificationCode = {
-  CODE_EXPIRE_MS: 5 * 60 * 1000,
   SMTP_API_BASE: window.location.protocol === 'file:' ? 'http://127.0.0.1:5500' : window.location.origin,
   timers: {},
 
-  getApiUrl() {
-    return `${this.SMTP_API_BASE}/api/send-code`;
-  },
-
-  createCode(email, scene) {
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-    const payload = { email, code, expireAt: Date.now() + this.CODE_EXPIRE_MS };
-    localStorage.setItem(`sms_code_${scene}`, JSON.stringify(payload));
-    return code;
-  },
-
-  verify(email, code, scene) {
-    try {
-      const raw = localStorage.getItem(`sms_code_${scene}`);
-      if (!raw) return { ok: false, message: '请先发送验证码' };
-      const payload = JSON.parse(raw);
-      if (Date.now() > payload.expireAt) return { ok: false, message: '验证码已过期，请重新发送' };
-      if (payload.email !== email) return { ok: false, message: '邮箱与发送验证码时不一致' };
-      if (payload.code !== code) return { ok: false, message: '验证码错误' };
-      return { ok: true };
-    } catch {
-      return { ok: false, message: '验证码校验失败，请重新发送' };
+  getApiUrls() {
+    if (window.location.protocol === 'file:') {
+      return [`${this.SMTP_API_BASE}/api/send-code`];
     }
+    // 优先命中邮件专用路由，兼容旧版 /api/send-code。
+    return [
+      `${this.SMTP_API_BASE}/mail-api/send-code`,
+      `${this.SMTP_API_BASE}/api/send-code`
+    ];
+  },
+
+  async verify(email, code, scene) {
+    const payload = JSON.stringify({ email, code, scene });
+    const apiUrls =
+      window.location.protocol === 'file:'
+        ? [`${this.SMTP_API_BASE}/api/verify-code`]
+        : [`${this.SMTP_API_BASE}/mail-api/verify-code`, `${this.SMTP_API_BASE}/api/verify-code`];
+
+    for (const url of apiUrls) {
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+        });
+        if (resp.ok) return { ok: true };
+
+        let data = null;
+        try {
+          data = await resp.json();
+        } catch {
+          data = null;
+        }
+        if (data && data.message) {
+          return { ok: false, message: data.message };
+        }
+      } catch {
+        // try next endpoint
+      }
+    }
+    return { ok: false, message: '验证码校验失败，请稍后重试' };
   },
 
   startTimer(buttonId, seconds = 60) {
@@ -415,17 +432,25 @@ const VerificationCode = {
     this.timers[buttonId] = timer;
   },
 
-  async sendByApi(email, code, scene) {
-    try {
-      const resp = await fetch(this.getApiUrl(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ toEmail: email, code, scene })
-      });
-      return { ok: resp.ok };
-    } catch {
-      return { ok: false, reason: 'network_error' };
+  async sendByApi(email, scene) {
+    const payload = JSON.stringify({ toEmail: email, scene });
+    const apiUrls = this.getApiUrls();
+    let lastError = null;
+
+    for (const url of apiUrls) {
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+        });
+        if (resp.ok) return { ok: true };
+        lastError = { reason: `http_${resp.status}` };
+      } catch {
+        lastError = { reason: 'network_error' };
+      }
     }
+    return { ok: false, ...(lastError || { reason: 'unknown_error' }) };
   },
 
   async send(email, scene, buttonId) {
@@ -434,18 +459,16 @@ const VerificationCode = {
       return;
     }
 
-    const code = this.createCode(email, scene);
-    const result = await this.sendByApi(email, code, scene);
+    const result = await this.sendByApi(email, scene);
 
     if (result.ok) {
       Toast.show('验证码已发送，请检查邮箱', 'success');
+      if (this.timers[buttonId]) clearInterval(this.timers[buttonId]);
+      this.startTimer(buttonId, 60);
     } else {
-      console.warn('[Dev] 验证码发送失败，测试码:', code);
-      Toast.show('邮件发送失败，请稍后重试', 'error');
+      const reason = result.reason ? `（${result.reason}）` : '';
+      Toast.show(`邮件发送失败，请稍后重试${reason}`, 'error');
     }
-
-    if (this.timers[buttonId]) clearInterval(this.timers[buttonId]);
-    this.startTimer(buttonId, 60);
   }
 };
 
