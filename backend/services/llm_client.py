@@ -10,26 +10,33 @@ logger = logging.getLogger("zhimei-backend.llm")
 
 
 class LLMClient:
-    """AIHub Agent API 客户端，对接中传校内 AIHub 平台的 DM-1 智能体。"""
+    """LLM 客户端：支持 OpenAI 兼容流式（/chat/completions）与校内 AIHub DM-1（/chat）。"""
 
     def __init__(self):
         self.api_base = Config.LLM_API_BASE.rstrip("/")
         self.api_key = Config.LLM_API_KEY
-        self.chat_path = "/chat"
+        path = getattr(Config, "LLM_CHAT_PATH", "/chat") or "/chat"
+        self.chat_path = path if path.startswith("/") else f"/{path}"
         self.chat_type = getattr(Config, "LLM_CHAT_TYPE", "business")
-        self.timeout = 60.0
+        self.timeout = 120.0
         # 游戏 session_id → AIHub session_id 映射
         self._aihub_sessions: Dict[str, str] = {}
 
     def _is_mock_mode(self) -> bool:
         return not self.api_key
 
+    def _is_openai_compatible_path(self) -> bool:
+        return "chat/completions" in self.chat_path.lower()
+
     # ── 公开接口 ──────────────────────────────────────────
 
     def chat(self, messages: List[Dict], game_session_id: str = None) -> str:
-        """发送消息到 AIHub Agent，返回完整回复文本。"""
+        """非流式完整回复。"""
         if self._is_mock_mode():
             return self._mock_reply(messages)
+
+        if self._is_openai_compatible_path():
+            return self._openai_chat(messages)
 
         content = self._build_content(messages)
         aihub_sid = self._aihub_sessions.get(game_session_id) if game_session_id else None
@@ -42,15 +49,18 @@ class LLMClient:
             resp.raise_for_status()
             data = resp.json()
 
-        # 保存 AIHub session id 以便后续多轮
         self._save_session_id(data, game_session_id)
 
         return self._extract_reply(data)
 
     def chat_stream(self, messages: List[Dict], game_session_id: str = None) -> Generator[str, None, None]:
-        """发送消息到 AIHub Agent，流式返回回复片段。"""
+        """流式回复片段。"""
         if self._is_mock_mode():
             yield from self._mock_reply_stream(messages)
+            return
+
+        if self._is_openai_compatible_path():
+            yield from self._openai_chat_stream(messages)
             return
 
         content = self._build_content(messages)
@@ -75,21 +85,91 @@ class LLMClient:
                     except json.JSONDecodeError:
                         continue
 
-                    # 提取 sessionId
                     sid = chunk.get("sessionId")
                     if sid:
                         collected_sid = sid
 
-                    # 只从 reply 状态的 chunk 提取文本
                     status = chunk.get("status", "")
                     if status == "reply":
                         text = self._text_from_item(chunk)
                         if text:
                             yield text
 
-        # 保存 sessionId
         if collected_sid and game_session_id:
             self._aihub_sessions[game_session_id] = collected_sid
+
+    # ── OpenAI 兼容（SiliconFlow、OpenAI 等）──────────────────
+
+    @staticmethod
+    def _normalize_openai_messages(messages: List[Dict]) -> List[Dict]:
+        out: List[Dict] = []
+        for m in messages:
+            role = m.get("role")
+            content = m.get("content", "")
+            if role not in ("system", "user", "assistant"):
+                continue
+            if not isinstance(content, str):
+                content = str(content)
+            out.append({"role": role, "content": content})
+        return out
+
+    def _openai_chat(self, messages: List[Dict]) -> str:
+        url = f"{self.api_base}{self.chat_path}"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": Config.LLM_MODEL,
+            "messages": self._normalize_openai_messages(messages),
+            "stream": False,
+        }
+        with httpx.Client(timeout=self.timeout) as client:
+            resp = client.post(url, headers=headers, json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+        choices = data.get("choices") if isinstance(data, dict) else None
+        if not choices:
+            return ""
+        msg = (choices[0] or {}).get("message") or {}
+        return (msg.get("content") or "").strip()
+
+    def _openai_chat_stream(self, messages: List[Dict]) -> Generator[str, None, None]:
+        url = f"{self.api_base}{self.chat_path}"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": Config.LLM_MODEL,
+            "messages": self._normalize_openai_messages(messages),
+            "stream": True,
+        }
+        with httpx.Client(timeout=self.timeout) as client:
+            with client.stream("POST", url, headers=headers, json=payload) as resp:
+                resp.raise_for_status()
+                for line in resp.iter_lines():
+                    if not line:
+                        continue
+                    if line.startswith("data:"):
+                        raw = line.split(":", 1)[1].strip()
+                    elif line.startswith("{"):  # 少数网关不按 SSE 前缀返回
+                        raw = line.strip()
+                    else:
+                        continue
+                    if raw == "[DONE]":
+                        break
+                    try:
+                        chunk = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
+                    choices = chunk.get("choices") or []
+                    if not choices:
+                        continue
+                    delta = (choices[0] or {}).get("delta") or {}
+                    piece = delta.get("content")
+                    if isinstance(piece, str) and piece:
+                        yield piece
 
     # ── 内部方法 ──────────────────────────────────────────
 

@@ -5,6 +5,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _infer_llm_chat_path():
+    explicit = os.getenv("LLM_CHAT_PATH", "").strip()
+    if explicit:
+        return explicit if explicit.startswith("/") else f"/{explicit}"
+    base = os.getenv("LLM_API_BASE", "").lower()
+    if any(x in base for x in ("siliconflow", "openai.com", "api.deepseek.com", "groq.com")):
+        return "/chat/completions"
+    return "/chat"
+
+
 class Config:
     @staticmethod
     def _parse_cors_origins():
@@ -23,6 +33,8 @@ class Config:
     LLM_API_BASE = os.getenv("LLM_API_BASE", "https://api.siliconflow.cn/v1")
     LLM_API_KEY = os.getenv("LLM_API_KEY", "")
     LLM_MODEL = os.getenv("LLM_MODEL", "deepseek-ai/DeepSeek-V3")
+    LLM_CHAT_TYPE = os.getenv("LLM_CHAT_TYPE", "business")
+    LLM_CHAT_PATH = _infer_llm_chat_path()
     ORCHESTRATOR_MODEL = os.getenv("ORCHESTRATOR_MODEL", LLM_MODEL)
     ORCHESTRATOR_ENABLED = os.getenv("ORCHESTRATOR_ENABLED", "false").lower() == "true"
     ORCHESTRATOR_API_BASE = os.getenv("ORCHESTRATOR_API_BASE", "")
