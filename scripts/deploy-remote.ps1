@@ -65,8 +65,8 @@ if (-not $SkipChown) {
   $chownPart = "sudo chown -R ${user}:${user} '${remoteRoot}' && "
 }
 
-# One git pull here; deploy.sh skips its own pull when SKIP_GIT_PULL=1 (avoids double GitHub TLS on flaky links).
-$remoteBash = "${chownPart}set -e && cd '${remoteRoot}' && git pull origin main && SKIP_GIT_PULL=1 bash deploy.sh"
+# Multiple git pull attempts (server→GitHub TLS often flakes with GnuTLS -110).
+$remoteBash = "${chownPart}cd '${remoteRoot}' && pull_ok=0 && for _try in 1 2 3 4 5 6; do git pull origin main && pull_ok=1 && break; sleep 18; done && test `$pull_ok -eq 1 && SKIP_GIT_PULL=1 bash deploy.sh"
 
 Write-Host "Remote: $sshTarget" -ForegroundColor Cyan
 Write-Host $remoteBash -ForegroundColor DarkGray
@@ -84,6 +84,7 @@ if ($LASTEXITCODE -ne 0) {
   Write-Host "If git said 'local changes would be overwritten' (often deploy.sh edited on server), SSH in and run:" -ForegroundColor Yellow
   Write-Host "  cd '${remoteRoot}' && git restore deploy.sh && git pull origin main && SKIP_GIT_PULL=1 bash deploy.sh" -ForegroundColor White
   Write-Host "If you saw 'Connection closed by ... port 22': retry later; or SSH in and run the same line without git restore if tree is clean." -ForegroundColor Yellow
+  Write-Host "If git pull shows GnuTLS recv error (-110): retry deploy-remote later, or on server once run: git config --global http.version HTTP/1.1" -ForegroundColor Yellow
   throw "remote deploy failed (ssh exit $LASTEXITCODE)"
 }
 
