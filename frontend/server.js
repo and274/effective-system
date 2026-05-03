@@ -170,16 +170,8 @@ function handleVerifyCode(req, res) {
   return res.json({ ok: true });
 }
 
-function bindMailCodeRoutes(router) {
-  router.post("/send-code", handleSendCode);
-  router.post("/verify-code", handleVerifyCode);
-}
-const mailCodeRouterApi = express.Router();
-const mailCodeRouterMail = express.Router();
-bindMailCodeRoutes(mailCodeRouterApi);
-bindMailCodeRoutes(mailCodeRouterMail);
-app.use("/api", mailCodeRouterApi);
-app.use("/mail-api", mailCodeRouterMail);
+app.post(["/api/send-code", "/mail-api/send-code"], handleSendCode);
+app.post(["/api/verify-code", "/mail-api/verify-code"], handleVerifyCode);
 
 app.get("/auth/user-by-email", (req, res) => {
   const email = String(req.query.email || "");
