@@ -23,7 +23,7 @@
     .scenario-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;cursor:pointer}.scenario-dropdown{margin-top:10px;display:none;flex-direction:column;gap:6px}.scenario-dropdown.show{display:flex}.scenario-option{padding:10px 12px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;cursor:pointer}.scenario-option.selected{border-color:var(--accent);background:var(--accent-dim)}.scenario-option-name{font-weight:600;margin-bottom:2px}.scenario-option-desc{color:var(--text-secondary);font-size:10px}
     .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.info-item.full{grid-column:span 2}.info-label{font-size:9px;color:var(--text-secondary);margin-bottom:2px;text-transform:uppercase}.info-value{font-size:12px;font-weight:500}.warning{color:var(--warning)}.danger{color:var(--danger)}
     .left-panel .panel-card.history-entry{margin-top:auto}.header-btn{width:100%;justify-content:center;padding:10px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer}
-    .chat-section{display:flex;flex-direction:column;background:rgba(30,41,59,.58);border:1px solid var(--border);border-radius:12px;overflow:hidden}.chat-header{padding:12px 16px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.chat-header-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}.live-dot{width:8px;height:8px;background:var(--danger);border-radius:50%;animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}.chat-messages{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}.start-hint{margin:auto;text-align:center;color:var(--text-secondary)}.start-hint-icon{font-size:48px;opacity:.5;margin-bottom:10px}.message{max-width:80%}.message .content{padding:10px 14px;font-size:13px;line-height:1.6;border-radius:12px}.message.system{align-self:center}.message.system .content{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);white-space:pre-line}.message.ai{align-self:flex-start}.message.ai .content{background:var(--bg-tertiary);border:1px solid var(--border)}.message.user{align-self:flex-end}.message.user .content{background:linear-gradient(135deg,var(--accent),#0EA5E9)}
+    .chat-section{display:flex;flex-direction:column;background:rgba(30,41,59,.58);border:1px solid var(--border);border-radius:12px;overflow:hidden}.chat-header{padding:12px 16px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.chat-header-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}.live-dot{width:8px;height:8px;background:var(--danger);border-radius:50%;animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}.chat-messages{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}.start-hint{margin:auto;text-align:center;color:var(--text-secondary)}.start-hint-icon{font-size:48px;opacity:.5;margin-bottom:10px}.message{max-width:80%}.message .content{padding:10px 14px;font-size:13px;line-height:1.6;border-radius:12px}.message.system{align-self:center}.message.system .content{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);white-space:pre-line}.message.system.opening-brief{align-self:center;max-width:min(560px,92%);width:100%}.message.system.opening-brief .content{background:transparent;border:none;padding:10px 16px;font-size:11.5px;line-height:1.7;color:var(--text-secondary);text-align:center;white-space:pre-line;opacity:0;animation:openingBriefIn .55s ease forwards}@keyframes openingBriefIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.message.ai{align-self:flex-start}.message.ai .content{background:var(--bg-tertiary);border:1px solid var(--border)}.message.user{align-self:flex-end}.message.user .content{background:linear-gradient(135deg,var(--accent),#0EA5E9)}
     .particle-chart{height:150px;background:var(--bg-primary);border-radius:8px;position:relative;overflow:hidden;margin-bottom:14px}.particle-node{position:absolute;border-radius:50%;animation:node-float 4s ease-in-out infinite}@keyframes node-float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8px,-8px) scale(1.08)}}
     .indicator-list{display:flex;flex-direction:column;gap:10px}.indicator-item{display:flex;align-items:center;gap:10px}.indicator-label{width:72px;font-size:11px;color:var(--text-secondary)}.indicator-bar{flex:1;height:6px;background:var(--bg-primary);border-radius:3px;overflow:hidden}.indicator-fill{height:100%;transition:width .4s ease}.indicator-value{width:36px;text-align:right;font-size:11px;font-weight:600}
     .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.data-item{text-align:center;padding:10px 6px;background:var(--bg-primary);border-radius:8px}.data-value{font-size:18px;font-weight:700;color:var(--accent)}.data-label{font-size:9px;color:var(--text-secondary);margin-top:2px}
@@ -294,18 +294,18 @@
       toggleDropdown();
     }
 
-    function addMessage(type, content) {
+    function addMessage(type, content, extraClass = "") {
       const c = document.getElementById("chatMessages");
       const m = document.createElement("div");
-      m.className = `message ${type}`;
+      m.className = `message ${type}${extraClass ? ` ${extraClass}` : ""}`;
       m.innerHTML = `<div class="content">${escapeHtml(content)}</div>`;
       c.appendChild(m);
       c.scrollTop = c.scrollHeight;
       return m;
     }
 
-    /** 推演开始时在主会话区输出场景背景与现场设定 */
-    function appendOpeningBackground() {
+    /** 推演开始时在主会话区分段淡入场景背景（较慢、居中、无边框小字） */
+    async function appendOpeningBackground() {
       const d = sceneData[currentScene] || sceneData.fire;
       const lines = Array.isArray(d.briefingLines) ? d.briefingLines : [];
       const title = d.briefingTitle || "推演背景";
@@ -314,13 +314,23 @@
         `概要：${d.desc}`,
         `现场参考：火势/烈度 ${d.fire} · 秩序 ${d.order} · 区域 ${d.area} · 伤亡/风险 ${d.casualty}`,
       ].join("\n");
-      addMessage("system", `—— ${title} ——`);
-      if (d.briefingBody) addMessage("system", d.briefingBody);
-      else if (lines.length) addMessage("system", lines.join("\n\n"));
-      if (!d.briefingBody) addMessage("system", factSheet);
+      const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+      const pauseAfterReveal = 780;
+      const pushBrief = async (text) => {
+        addMessage("system", text, "opening-brief");
+        await delay(pauseAfterReveal);
+      };
+
+      await pushBrief(`—— ${title} ——`);
+      if (d.briefingBody) {
+        const parts = d.briefingBody.split(/\n\n+/).map((s) => s.trim()).filter(Boolean);
+        for (const p of parts) await pushBrief(p);
+      } else if (lines.length) {
+        await pushBrief(lines.join("\n\n"));
+      }
+      if (!d.briefingBody) await pushBrief(factSheet);
       if (sessionId) {
-        addMessage(
-          "system",
+        await pushBrief(
           `会话已建立 · 后端场景「${latestSceneId}」· session ${sessionId}\n（提示：下方输入决策后由智媒沙盘逐轮推演舆情与报道后果。）`
         );
       }
@@ -459,8 +469,13 @@
       e.classList.add("show");
       s.textContent = "推演中...";
       if (h) h.style.display = "none";
-      appendOpeningBackground();
-      addMessage("system", `推演已开始。请在下方输入你的决策指令（每轮一条），系统将结合现场与舆情给出反馈。`);
+      await appendOpeningBackground();
+      addMessage(
+        "system",
+        `推演已开始。请在下方输入你的决策指令（每轮一条），系统将结合现场与舆情给出反馈。`,
+        "opening-brief"
+      );
+      await new Promise((r) => setTimeout(r, 720));
       startRealtimePoll();
     }
 
