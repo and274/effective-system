@@ -81,8 +81,9 @@ $sshOpts = @(
 & ssh @sshOpts $sshTarget $remoteBash
 if ($LASTEXITCODE -ne 0) {
   Write-Host ""
-  Write-Host "If you saw 'Connection closed by ... port 22': retry in a minute; check server sshd/fail2ban; or SSH in and run:" -ForegroundColor Yellow
-  Write-Host "  cd '${remoteRoot}' && git pull origin main && SKIP_GIT_PULL=1 bash deploy.sh" -ForegroundColor White
+  Write-Host "If git said 'local changes would be overwritten' (often deploy.sh edited on server), SSH in and run:" -ForegroundColor Yellow
+  Write-Host "  cd '${remoteRoot}' && git restore deploy.sh && git pull origin main && SKIP_GIT_PULL=1 bash deploy.sh" -ForegroundColor White
+  Write-Host "If you saw 'Connection closed by ... port 22': retry later; or SSH in and run the same line without git restore if tree is clean." -ForegroundColor Yellow
   throw "remote deploy failed (ssh exit $LASTEXITCODE)"
 }
 
