@@ -27,7 +27,7 @@
     .particle-chart{height:150px;background:var(--bg-primary);border-radius:8px;position:relative;overflow:hidden;margin-bottom:14px}.particle-node{position:absolute;border-radius:50%;animation:node-float 4s ease-in-out infinite}@keyframes node-float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8px,-8px) scale(1.08)}}
     .indicator-list{display:flex;flex-direction:column;gap:10px}.indicator-item{display:flex;align-items:center;gap:10px}.indicator-label{width:72px;font-size:11px;color:var(--text-secondary)}.indicator-bar{flex:1;height:6px;background:var(--bg-primary);border-radius:3px;overflow:hidden}.indicator-fill{height:100%;transition:width .4s ease}.indicator-value{width:36px;text-align:right;font-size:11px;font-weight:600}
     .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.data-item{text-align:center;padding:10px 6px;background:var(--bg-primary);border-radius:8px}.data-value{font-size:18px;font-weight:700;color:var(--accent)}.data-label{font-size:9px;color:var(--text-secondary);margin-top:2px}
-    .input-section{grid-column:1/-1;padding:12px 16px;background:rgba(30,41,59,.72);border:1px solid var(--border);border-radius:12px}.input-section-inner{display:flex;flex-direction:column;gap:12px;width:100%}.input-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;width:100%;flex-wrap:wrap}.input-toolbar-left{flex:1;min-width:0;display:flex;align-items:center;min-height:44px}.input-toolbar-actions{display:flex;flex-direction:column;gap:8px;width:min(300px,100%);flex-shrink:0}.input-toolbar-actions .btn-start,.input-toolbar-actions .btn-decision{width:100%;justify-content:center}.input-wrapper{width:100%}.input-field{width:100%;min-height:86px;max-height:300px;resize:vertical;line-height:1.6;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-family:inherit}.btn-start{padding:12px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0EA5E9);color:#fff;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px}.btn-start.running{background:linear-gradient(135deg,var(--danger),#E11D48)}.btn-start.submit{background:linear-gradient(135deg,var(--success),#059669)}.btn-end{padding:10px 16px;border:1px solid rgba(244,63,94,.4);border-radius:10px;background:rgba(244,63,94,.12);color:#fecdd3;font-weight:600;font-size:13px;cursor:pointer;display:none;white-space:nowrap}.btn-end.show{display:inline-flex}.btn-decision{padding:10px 18px;border:1px solid rgba(56,189,248,.55);border-radius:10px;background:rgba(56,189,248,.08);color:#bae6fd;font-weight:600;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;gap:6px}.btn-decision.show{display:flex}.btn-decision:disabled{opacity:.45;cursor:not-allowed}
+    .input-section{grid-column:1/-1;position:relative;z-index:20;padding:12px 16px;background:rgba(30,41,59,.72);border:1px solid var(--border);border-radius:12px}.input-section-inner{display:flex;flex-direction:column;gap:12px;width:100%}.input-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;width:100%;flex-wrap:wrap}.input-toolbar-left{flex:1;min-width:0;display:flex;align-items:center;min-height:44px}.input-toolbar-actions{display:flex;flex-direction:column;gap:8px;width:min(300px,100%);flex-shrink:0}.input-toolbar-actions .btn-start,.input-toolbar-actions .btn-decision{width:100%;justify-content:center}.input-wrapper{width:100%}.input-field{width:100%;min-height:86px;max-height:300px;resize:vertical;line-height:1.6;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-family:inherit}.btn-start{padding:12px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0EA5E9);color:#fff;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px}.btn-start.running{background:linear-gradient(135deg,var(--danger),#E11D48)}.btn-start.submit{background:linear-gradient(135deg,var(--success),#059669)}.btn-end{padding:10px 16px;border:1px solid rgba(244,63,94,.4);border-radius:10px;background:rgba(244,63,94,.12);color:#fecdd3;font-weight:600;font-size:13px;cursor:pointer;display:none;white-space:nowrap}.btn-end.show{display:inline-flex}.btn-decision{padding:10px 18px;border:1px solid rgba(56,189,248,.55);border-radius:10px;background:rgba(56,189,248,.08);color:#bae6fd;font-weight:600;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;gap:6px}.btn-decision.show{display:flex}.btn-decision:disabled{opacity:.45;cursor:not-allowed}
     .history-drawer{position:fixed;top:0;right:-420px;width:420px;height:100vh;background:rgba(15,23,42,.98);border-left:1px solid var(--border);z-index:100;transition:right .3s ease;display:flex;flex-direction:column}.history-drawer.open{right:0}.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;display:none}.overlay.show{display:block}.drawer-header{padding:16px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.drawer-title{display:flex;align-items:center;gap:8px}.history-filter{display:flex;gap:6px}.history-filter-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg-primary);color:var(--text-secondary);font-size:11px;cursor:pointer}.history-filter-btn.active{color:var(--text-primary);border-color:var(--accent);background:var(--accent-dim)}.drawer-body{flex:1;overflow-y:auto;padding:16px}.history-item{padding:12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;margin-bottom:10px}.history-empty{text-align:center;padding:40px;color:var(--text-secondary)}
   </style>
 </head>
@@ -288,6 +288,76 @@
       }
     }
 
+    /** 已进入推演：主按钮改为提交报道，显示决策与提前结束（与 toggleSimulation 一致） */
+    function applyRunningSessionUI(statusText) {
+      isRunning = true;
+      isSending = false;
+      const b = document.getElementById("btnStart");
+      const i = document.getElementById("btnIcon");
+      const t = document.getElementById("btnText");
+      const s = document.getElementById("chatStatus");
+      const h = document.getElementById("startHint");
+      const e = document.getElementById("btnEnd");
+      b.classList.add("running", "submit");
+      i.textContent = "📮";
+      t.textContent = "提交最终报道";
+      b.onclick = submitReport;
+      e.classList.add("show");
+      document.getElementById("btnSubmitDecision").classList.add("show");
+      s.textContent = statusText || "推演中...";
+      if (h) h.style.display = "none";
+    }
+
+    /** 会话已在后端结束：只可提交报道，不可再发决策 */
+    function applyEndedSessionUI() {
+      isRunning = false;
+      isSending = false;
+      const b = document.getElementById("btnStart");
+      const i = document.getElementById("btnIcon");
+      const t = document.getElementById("btnText");
+      const s = document.getElementById("chatStatus");
+      const e = document.getElementById("btnEnd");
+      b.classList.remove("running");
+      b.classList.add("submit");
+      i.textContent = "📮";
+      t.textContent = "提交最终报道";
+      b.onclick = submitReport;
+      e.classList.remove("show");
+      document.getElementById("btnSubmitDecision").classList.remove("show");
+      s.textContent = "已结束，待提交报道";
+      const h = document.getElementById("startHint");
+      if (h) h.style.display = "none";
+    }
+
+    /** 刷新页面后 localStorage 有 sessionId 但 isRunning 为 false 会导致无法提交决策；向 /api/state 校验并恢复 UI */
+    async function resumeSessionIfPersisted() {
+      if (!sessionId || !window.__playerId__) return;
+      const sidAtStart = sessionId;
+      try {
+        const resp = await fetch(`${API_BASE}/api/state/${encodeURIComponent(sidAtStart)}`);
+        if (resp.status === 404) {
+          localStorage.removeItem("app_session");
+          sessionId = "";
+          window.__playerId__ = null;
+          return;
+        }
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (sessionId !== sidAtStart) return;
+        latestSceneId = data.sceneId || latestSceneId;
+        if (data.externalUser) currentExternalUser = data.externalUser;
+        applyStateToPanel(data.state);
+        if (data.state && data.state.game_over) {
+          applyEndedSessionUI();
+          return;
+        }
+        applyRunningSessionUI("推演中…（已恢复会话，可继续输入决策）");
+        startRealtimePoll();
+      } catch (_) {
+        /* 网络异常时不清理 storage，避免误删有效会话 */
+      }
+    }
+
     function toggleDropdown() {
       const d = document.getElementById("scenarioDropdown");
       d.classList.toggle("show");
@@ -470,21 +540,7 @@
         return;
       }
 
-      isRunning = true;
-      const b = document.getElementById("btnStart");
-      const i = document.getElementById("btnIcon");
-      const t = document.getElementById("btnText");
-      const s = document.getElementById("chatStatus");
-      const h = document.getElementById("startHint");
-      const e = document.getElementById("btnEnd");
-      b.classList.add("running", "submit");
-      i.textContent = "📮";
-      t.textContent = "提交最终报道";
-      b.onclick = submitReport;
-      e.classList.add("show");
-      document.getElementById("btnSubmitDecision").classList.add("show");
-      s.textContent = "推演中...";
-      if (h) h.style.display = "none";
+      applyRunningSessionUI("推演中...");
       await appendOpeningBackground();
       addMessage(
         "system",
@@ -744,6 +800,7 @@
 
     createParticleChart();
     loadUserInfo();
+    resumeSessionIfPersisted();
     loadHistory();
   </script>
 </body>
