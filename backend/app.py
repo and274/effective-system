@@ -26,6 +26,11 @@ logging.basicConfig(level=getattr(logging, Config.LOG_LEVEL.upper(), logging.INF
 logger = logging.getLogger("zhimei-backend")
 
 
+def _sse_utf8(text: str) -> bytes:
+    """SSE 正文强制 UTF-8 字节，避免部分 WSGI/worker 将 str 按 ascii/latin-1 编码报错。"""
+    return text.encode("utf-8")
+
+
 def error_response(code: str, message: str, status: int, details: dict | None = None):
     payload = {"error": {"code": code, "message": message}}
     if details:
@@ -315,7 +320,7 @@ def realtime(session_id: str):
 
 @app.route("/api/chat/stream", methods=["POST"])
 def chat_stream():
-    def generate():
+    def iter_sse_strings():
         started = time.perf_counter()
         data = request.get_json(silent=True) or {}
         session_id = data.get("session_id") or data.get("sessionId", "")
@@ -410,9 +415,12 @@ def chat_stream():
         elapsed_ms = int((time.perf_counter() - started) * 1000)
         logger.info("stream ok scene=%s session=%s elapsed_ms=%s", record["scene_id"], state.session_id, elapsed_ms)
 
-    # 必须声明 UTF-8，否则 Werkzeug 把 SSE 正文按 latin-1/ascii 编码会在中国文 token 上触发 UnicodeEncodeError
+    def generate_bytes():
+        for chunk in iter_sse_strings():
+            yield _sse_utf8(chunk)
+
     return Response(
-        stream_with_context(generate()),
+        stream_with_context(generate_bytes()),
         content_type="text/event-stream; charset=utf-8",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
