@@ -34,6 +34,11 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
+/** 用于确认线上是否已加载本文件（GET 应返回 JSON，不应 404） */
+app.get("/__zhimedia_server_probe", (_req, res) => {
+  res.json({ ok: true, probe: "mail-routes-v2", express: require("express/package.json").version });
+});
+
 function makeCodeKey(email, scene) {
   return `${String(scene || "login").trim().toLowerCase()}::${String(email || "").trim().toLowerCase()}`;
 }
@@ -251,5 +256,7 @@ app.post("/auth/update-password", (req, res) => {
 app.use(express.static(path.resolve(__dirname)));
 
 app.listen(port, () => {
-  console.log(`Server running at http://127.0.0.1:${port}`);
+  console.log(
+    `[zhimedia-frontend] listening on ${port} express=${require("express/package.json").version} mail-api POST registered`
+  );
 });
