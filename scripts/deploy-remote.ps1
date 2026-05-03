@@ -71,7 +71,19 @@ $remoteBash = "${chownPart}set -e && cd '${remoteRoot}' && git pull origin main 
 Write-Host "Remote: $sshTarget" -ForegroundColor Cyan
 Write-Host $remoteBash -ForegroundColor DarkGray
 
-& ssh $sshTarget $remoteBash
-if ($LASTEXITCODE -ne 0) { throw "remote deploy failed (ssh exit $LASTEXITCODE)" }
+# Keepalives: long git pull / npm / pip can look "idle" and firewalls/sshd may drop the session (exit 255, "Connection closed").
+$sshOpts = @(
+  "-o", "ServerAliveInterval=20",
+  "-o", "ServerAliveCountMax=120",
+  "-o", "TCPKeepAlive=yes",
+  "-o", "ConnectTimeout=30"
+)
+& ssh @sshOpts $sshTarget $remoteBash
+if ($LASTEXITCODE -ne 0) {
+  Write-Host ""
+  Write-Host "If you saw 'Connection closed by ... port 22': retry in a minute; check server sshd/fail2ban; or SSH in and run:" -ForegroundColor Yellow
+  Write-Host "  cd '${remoteRoot}' && git pull origin main && SKIP_GIT_PULL=1 bash deploy.sh" -ForegroundColor White
+  throw "remote deploy failed (ssh exit $LASTEXITCODE)"
+}
 
 Write-Host "Done." -ForegroundColor Green
