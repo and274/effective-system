@@ -158,9 +158,7 @@ async function handleSendCode(req, res) {
   }
 }
 
-app.post("/api/send-code", handleSendCode);
-app.post("/mail-api/send-code", handleSendCode);
-app.post("/api/verify-code", (req, res) => {
+function handleVerifyCode(req, res) {
   const { email, scene, code } = req.body || {};
   if (!email || !code) {
     return res.status(400).json({ ok: false, message: "Missing email or code" });
@@ -170,18 +168,18 @@ app.post("/api/verify-code", (req, res) => {
     return res.status(400).json(result);
   }
   return res.json({ ok: true });
-});
-app.post("/mail-api/verify-code", (req, res) => {
-  const { email, scene, code } = req.body || {};
-  if (!email || !code) {
-    return res.status(400).json({ ok: false, message: "Missing email or code" });
-  }
-  const result = verifyCode(email, scene || "login", code);
-  if (!result.ok) {
-    return res.status(400).json(result);
-  }
-  return res.json({ ok: true });
-});
+}
+
+function bindMailCodeRoutes(router) {
+  router.post("/send-code", handleSendCode);
+  router.post("/verify-code", handleVerifyCode);
+}
+const mailCodeRouterApi = express.Router();
+const mailCodeRouterMail = express.Router();
+bindMailCodeRoutes(mailCodeRouterApi);
+bindMailCodeRoutes(mailCodeRouterMail);
+app.use("/api", mailCodeRouterApi);
+app.use("/mail-api", mailCodeRouterMail);
 
 app.get("/auth/user-by-email", (req, res) => {
   const email = String(req.query.email || "");
