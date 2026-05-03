@@ -1,4 +1,4 @@
-﻿# Global ignores
+# Global ignores
 **/.env
 # Local user registry (password hashes); do not commit
 frontend/data/

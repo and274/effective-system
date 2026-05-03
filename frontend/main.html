@@ -23,7 +23,7 @@
     .scenario-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;cursor:pointer}.scenario-dropdown{margin-top:10px;display:none;flex-direction:column;gap:6px}.scenario-dropdown.show{display:flex}.scenario-option{padding:10px 12px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;cursor:pointer}.scenario-option.selected{border-color:var(--accent);background:var(--accent-dim)}.scenario-option-name{font-weight:600;margin-bottom:2px}.scenario-option-desc{color:var(--text-secondary);font-size:10px}
     .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.info-item.full{grid-column:span 2}.info-label{font-size:9px;color:var(--text-secondary);margin-bottom:2px;text-transform:uppercase}.info-value{font-size:12px;font-weight:500}.warning{color:var(--warning)}.danger{color:var(--danger)}
     .left-panel .panel-card.history-entry{margin-top:auto}.header-btn{width:100%;justify-content:center;padding:10px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer}
-    .chat-section{display:flex;flex-direction:column;background:rgba(30,41,59,.58);border:1px solid var(--border);border-radius:12px;overflow:hidden}.chat-header{padding:12px 16px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.chat-header-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}.live-dot{width:8px;height:8px;background:var(--danger);border-radius:50%;animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}.chat-messages{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}.start-hint{margin:auto;text-align:center;color:var(--text-secondary)}.start-hint-icon{font-size:48px;opacity:.5;margin-bottom:10px}.message{max-width:80%}.message .content{padding:10px 14px;font-size:13px;line-height:1.6;border-radius:12px}.message.system{align-self:center}.message.system .content{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35)}.message.ai{align-self:flex-start}.message.ai .content{background:var(--bg-tertiary);border:1px solid var(--border)}.message.user{align-self:flex-end}.message.user .content{background:linear-gradient(135deg,var(--accent),#0EA5E9)}
+    .chat-section{display:flex;flex-direction:column;background:rgba(30,41,59,.58);border:1px solid var(--border);border-radius:12px;overflow:hidden}.chat-header{padding:12px 16px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.chat-header-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}.live-dot{width:8px;height:8px;background:var(--danger);border-radius:50%;animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}.chat-messages{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}.start-hint{margin:auto;text-align:center;color:var(--text-secondary)}.start-hint-icon{font-size:48px;opacity:.5;margin-bottom:10px}.message{max-width:80%}.message .content{padding:10px 14px;font-size:13px;line-height:1.6;border-radius:12px}.message.system{align-self:center}.message.system .content{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);white-space:pre-line}.message.ai{align-self:flex-start}.message.ai .content{background:var(--bg-tertiary);border:1px solid var(--border)}.message.user{align-self:flex-end}.message.user .content{background:linear-gradient(135deg,var(--accent),#0EA5E9)}
     .particle-chart{height:150px;background:var(--bg-primary);border-radius:8px;position:relative;overflow:hidden;margin-bottom:14px}.particle-node{position:absolute;border-radius:50%;animation:node-float 4s ease-in-out infinite}@keyframes node-float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8px,-8px) scale(1.08)}}
     .indicator-list{display:flex;flex-direction:column;gap:10px}.indicator-item{display:flex;align-items:center;gap:10px}.indicator-label{width:72px;font-size:11px;color:var(--text-secondary)}.indicator-bar{flex:1;height:6px;background:var(--bg-primary);border-radius:3px;overflow:hidden}.indicator-fill{height:100%;transition:width .4s ease}.indicator-value{width:36px;text-align:right;font-size:11px;font-weight:600}
     .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.data-item{text-align:center;padding:10px 6px;background:var(--bg-primary);border-radius:8px}.data-value{font-size:18px;font-weight:700;color:var(--accent)}.data-label{font-size:9px;color:var(--text-secondary);margin-top:2px}
@@ -60,9 +60,9 @@
     <div class="left-panel">
       <div class="panel-card">
         <div class="panel-title">📦 场景库</div>
-        <button class="scenario-btn" onclick="toggleDropdown()"><span id="selectedName">🔥 火灾现场报道</span><span id="dropdownArrow">▼</span></button>
+        <button class="scenario-btn" onclick="toggleDropdown()"><span id="selectedName">🔥 金鼎大厦火灾现场报道</span><span id="dropdownArrow">▼</span></button>
         <div class="scenario-dropdown" id="scenarioDropdown">
-          <div class="scenario-option selected" data-scene="fire"><div class="scenario-option-name">🔥 火灾现场报道</div><div class="scenario-option-desc">突发火灾事件的新闻现场报道与舆论引导</div></div>
+          <div class="scenario-option selected" data-scene="fire"><div class="scenario-option-name">🔥 金鼎大厦火灾现场报道</div><div class="scenario-option-desc">中心商业区综合体高层火灾，突发新闻组现场报道与舆论引导</div></div>
           <div class="scenario-option" data-scene="pr"><div class="scenario-option-name">🚨 危机公关</div><div class="scenario-option-desc">企业突发危机的应急响应</div></div>
           <div class="scenario-option" data-scene="public"><div class="scenario-option-name">📢 舆情引导</div><div class="scenario-option-desc">社交媒体舆论场引导</div></div>
         </div>
@@ -70,12 +70,12 @@
       <div class="panel-card">
         <div class="panel-title">📋 场景信息</div>
         <div class="info-grid">
-          <div class="info-item full"><div class="info-label">场景名称</div><div class="info-value" id="infoName">火灾现场报道</div></div>
-          <div class="info-item full"><div class="info-label">场景描述</div><div class="info-value" id="infoDesc">突发火灾事件的新闻现场报道与舆论引导</div></div>
-          <div class="info-item"><div class="info-label">默认火势</div><div class="info-value warning" id="infoFire">65%</div></div>
+          <div class="info-item full"><div class="info-label">场景名称</div><div class="info-value" id="infoName">金鼎大厦火灾现场报道</div></div>
+          <div class="info-item full"><div class="info-label">场景描述</div><div class="info-value" id="infoDesc">中心商业区综合体高层火灾，突发新闻组现场报道与舆论引导</div></div>
+          <div class="info-item"><div class="info-label">默认火势</div><div class="info-value warning" id="infoFire">17–19层燃烧</div></div>
           <div class="info-item"><div class="info-label">现场秩序</div><div class="info-value danger" id="infoOrder">混乱</div></div>
-          <div class="info-item"><div class="info-label">涉及区域</div><div class="info-value" id="infoArea">商业区</div></div>
-          <div class="info-item"><div class="info-label">伤亡情况</div><div class="info-value danger" id="infoCasualty">未知</div></div>
+          <div class="info-item"><div class="info-label">涉及区域</div><div class="info-value" id="infoArea">金鼎大厦（商业区）</div></div>
+          <div class="info-item"><div class="info-label">伤亡情况</div><div class="info-value danger" id="infoCasualty">楼内约800–1200人滞留（估算）</div></div>
         </div>
       </div>
       <div class="panel-card history-entry"><button class="header-btn" onclick="toggleHistory()">📜 历史推演</button></div>
@@ -152,9 +152,74 @@
     const BACKEND_SCENE_MAP = { fire: "zhimei", pr: "zhimei", public: "zhimei" };
 
     const sceneData = {
-      fire: { name: "火灾现场报道", desc: "突发火灾事件的新闻现场报道与舆论引导", fire: "65%", order: "混乱", area: "商业区", casualty: "未知" },
-      pr: { name: "危机公关", desc: "企业突发危机的应急响应", fire: "80%", order: "紧张", area: "总部", casualty: "无" },
-      public: { name: "舆情引导", desc: "社交媒体舆论场引导", fire: "70%", order: "波动", area: "多平台", casualty: "无" },
+      fire: {
+        name: "金鼎大厦火灾现场报道",
+        desc: "中心商业区综合体高层火灾，突发新闻组现场报道与舆论引导",
+        fire: "17–19层燃烧",
+        order: "混乱",
+        area: "金鼎大厦（商业区）",
+        casualty: "楼内约800–1200人滞留（估算）",
+        briefingTitle: "金鼎大厦火灾 · 推演背景",
+        briefingBody: `【事件概述】
+
+2024年3月15日 14:32，本市中心商业区「金鼎大厦」突发火灾。该建筑为28层综合性商业楼宇，1–6层为商场，7–20层为写字楼，21–28层为酒店式公寓。起火点位于17层东侧配电室，火势迅速蔓延至相邻楼层。
+
+【现场情况】
+
+火势：17–19层已全面燃烧，浓烟向高层蔓延
+人员：初步估算楼内滞留人员约800–1200人
+救援：消防已出动12辆消防车、80名指战员，云梯车正在架设
+交通：周边3条主干道已封闭，大量群众围观
+
+【你的角色】
+
+你是市电视台突发新闻组记者，火灾发生后15分钟抵达现场。你的任务是：
+
+快速获取核心信息 — 火情规模、人员伤亡、救援进展
+选择报道角度 — 现场直击、救援纪实、深度调查？
+把握报道分寸 — 时效性与准确性的平衡，避免引发恐慌
+
+【当前挑战】
+
+现场混乱，信息源混杂（目击者、保安、消防员、网友爆料）
+官方通报尚未发布，社交媒体已出现多种版本
+你的直播车正在路上，预计20分钟后到达
+
+系统提示：请开始你的现场报道决策。你可以选择：
+
+立即联系现场指挥员获取权威信息
+采访目击者收集一手素材
+查看社交媒体核实网传信息
+其他行动…`,
+      },
+      pr: {
+        name: "危机公关",
+        desc: "企业突发危机的应急响应",
+        fire: "80%",
+        order: "紧张",
+        area: "总部",
+        casualty: "无",
+        briefingTitle: "危机公关 · 背景简报",
+        briefingLines: [
+          "总部层面突发舆情，媒体与投资者追问密集，内部信息尚未完全对齐。",
+          "你需统筹声明口径、安排发布会与问答预案，并监测股价与社交平台情绪。",
+          "决策焦点：事实披露边界、责任归属表述、后续整改与信任修复路径。",
+        ],
+      },
+      public: {
+        name: "舆情引导",
+        desc: "社交媒体舆论场引导",
+        fire: "70%",
+        order: "波动",
+        area: "多平台",
+        casualty: "无",
+        briefingTitle: "舆情引导 · 背景简报",
+        briefingLines: [
+          "多平台话题发酵，观点极化明显，算法推荐可能放大对立叙事。",
+          "你需在事实核查、议题设置与互动话术之间取舍，避免「火上浇油」式回应。",
+          "决策焦点：热搜词条走向、KOL 与政务号协同、辟谣与情绪安抚的节奏。",
+        ],
+      },
     };
 
     function createParticleChart() {
@@ -237,6 +302,28 @@
       c.appendChild(m);
       c.scrollTop = c.scrollHeight;
       return m;
+    }
+
+    /** 推演开始时在主会话区输出场景背景与现场设定 */
+    function appendOpeningBackground() {
+      const d = sceneData[currentScene] || sceneData.fire;
+      const lines = Array.isArray(d.briefingLines) ? d.briefingLines : [];
+      const title = d.briefingTitle || "推演背景";
+      const factSheet = [
+        `场景：${d.name}`,
+        `概要：${d.desc}`,
+        `现场参考：火势/烈度 ${d.fire} · 秩序 ${d.order} · 区域 ${d.area} · 伤亡/风险 ${d.casualty}`,
+      ].join("\n");
+      addMessage("system", `—— ${title} ——`);
+      if (d.briefingBody) addMessage("system", d.briefingBody);
+      else if (lines.length) addMessage("system", lines.join("\n\n"));
+      if (!d.briefingBody) addMessage("system", factSheet);
+      if (sessionId) {
+        addMessage(
+          "system",
+          `会话已建立 · 后端场景「${latestSceneId}」· session ${sessionId}\n（提示：下方输入决策后由智媒沙盘逐轮推演舆情与报道后果。）`
+        );
+      }
     }
 
     function setAiDraftMessage(content = "") {
@@ -372,7 +459,8 @@
       e.classList.add("show");
       s.textContent = "推演中...";
       if (h) h.style.display = "none";
-      addMessage("system", `🔥 推演已开始（场景: ${latestSceneId}）。请输入你的决策。`);
+      appendOpeningBackground();
+      addMessage("system", `推演已开始。请在下方输入你的决策指令（每轮一条），系统将结合现场与舆情给出反馈。`);
       startRealtimePoll();
     }
 

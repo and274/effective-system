@@ -28,7 +28,9 @@ const transporter = nodemailer.createTransport({
 });
 
 app.use(cors());
-app.use(express.json());
+// 注册可能携带 base64 头像，默认 100kb 不够
+app.use(express.json({ limit: "8mb" }));
+app.use(express.urlencoded({ extended: true, limit: "8mb" }));
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });

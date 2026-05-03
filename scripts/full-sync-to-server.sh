@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# 与 full-sync-to-server.ps1 相同：上传 .env 与 frontend/data（需本机 SSH 免密）
+# Same as full-sync-to-server.ps1: upload .env and frontend/data.
+# Default: stage in ~/zhimedia-staging then sudo install (ubuntu-friendly).
+# ZHIMEDIA_SYNC_DIRECT=1 -> scp straight into REMOTE_ROOT (needs write permission).
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SYNC_ENV="$SCRIPT_DIR/sync.env"
+STAGING="zhimedia-staging"
 
 if [[ ! -f "$SYNC_ENV" ]]; then
-  echo "缺少 $SYNC_ENV — 请复制 sync.env.example 为 sync.env 并填写。" >&2
+  echo "Missing $SYNC_ENV — copy sync.env.example to sync.env" >&2
   exit 1
 fi
 
@@ -19,29 +22,39 @@ set +a
 : "${ZHIMEDIA_SYNC_USER:?}"
 : "${ZHIMEDIA_SYNC_REMOTE_ROOT:?}"
 
-TARGET="${ZHIMEDIA_SYNC_USER}@${ZHIMEDIA_SYNC_HOST}:${ZHIMEDIA_SYNC_REMOTE_ROOT}"
-echo "远端根目录: $TARGET"
+SSH_TARGET="${ZHIMEDIA_SYNC_USER}@${ZHIMEDIA_SYNC_HOST}"
+TARGET="${SSH_TARGET}:${ZHIMEDIA_SYNC_REMOTE_ROOT}"
 
-upload_file() {
-  local src="$1" dest="$2"
-  if [[ ! -e "$src" ]]; then
-    echo "跳过（本地不存在）: $src"
-    return 0
-  fi
-  echo "上传: $src -> $dest"
-  scp "$src" "$dest"
+echo "Remote: ${ZHIMEDIA_SYNC_REMOTE_ROOT} (ssh ${SSH_TARGET})"
+
+run_ssh() {
+  echo "+ ssh $SSH_TARGET $*"
+  ssh "$SSH_TARGET" "$@"
 }
 
-upload_file "$REPO_ROOT/frontend/.env" "${TARGET}/frontend/.env"
-
-if [[ -f "$REPO_ROOT/backend/.env" ]]; then
-  upload_file "$REPO_ROOT/backend/.env" "${TARGET}/backend/.env"
-fi
-
-if [[ -d "$REPO_ROOT/frontend/data" ]]; then
-  echo "上传目录: $REPO_ROOT/frontend/data -> ${TARGET}/frontend/"
-  scp -r "$REPO_ROOT/frontend/data" "${TARGET}/frontend/"
+if [[ "${ZHIMEDIA_SYNC_DIRECT:-}" == "1" ]]; then
+  echo "Mode: DIRECT scp"
+  [[ -f "$REPO_ROOT/frontend/.env" ]] && scp "$REPO_ROOT/frontend/.env" "${TARGET}/frontend/.env"
+  [[ -f "$REPO_ROOT/backend/.env" ]] && scp "$REPO_ROOT/backend/.env" "${TARGET}/backend/.env"
+  if [[ -d "$REPO_ROOT/frontend/data" ]]; then
+    scp -r "$REPO_ROOT/frontend/data" "${TARGET}/frontend/"
+  fi
+else
+  echo "Mode: staging + sudo"
+  run_ssh "mkdir -p ~/${STAGING}"
+  if [[ -f "$REPO_ROOT/frontend/.env" ]]; then
+    scp "$REPO_ROOT/frontend/.env" "${SSH_TARGET}:~/${STAGING}/frontend.env"
+    run_ssh "sudo install -m 0644 -T ~/${STAGING}/frontend.env '${ZHIMEDIA_SYNC_REMOTE_ROOT}/frontend/.env'"
+  fi
+  if [[ -f "$REPO_ROOT/backend/.env" ]]; then
+    scp "$REPO_ROOT/backend/.env" "${SSH_TARGET}:~/${STAGING}/backend.env"
+    run_ssh "sudo install -m 0644 -T ~/${STAGING}/backend.env '${ZHIMEDIA_SYNC_REMOTE_ROOT}/backend/.env'"
+  fi
+  if [[ -d "$REPO_ROOT/frontend/data" ]]; then
+    scp -r "$REPO_ROOT/frontend/data" "${SSH_TARGET}:~/${STAGING}/"
+    run_ssh "sudo rm -rf '${ZHIMEDIA_SYNC_REMOTE_ROOT}/frontend/data' && sudo cp -a ~/${STAGING}/data '${ZHIMEDIA_SYNC_REMOTE_ROOT}/frontend/data' && sudo chown -R ${ZHIMEDIA_SYNC_USER}:${ZHIMEDIA_SYNC_USER} '${ZHIMEDIA_SYNC_REMOTE_ROOT}/frontend/data'"
+  fi
 fi
 
 echo ""
-echo "上传完成。请在服务器执行 pm2 restart … --update-env 与 pm2 save。"
+echo "Done. On server: pm2 restart … --update-env && pm2 save"
