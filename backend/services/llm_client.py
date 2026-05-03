@@ -148,6 +148,11 @@ class LLMClient:
         with httpx.Client(timeout=self.timeout) as client:
             with client.stream("POST", url, headers=headers, json=payload) as resp:
                 resp.raise_for_status()
+                # 上游多为 UTF-8 JSON；避免 httpx 按 ISO-8859-1 误解码导致中文异常
+                try:
+                    resp.encoding = "utf-8"
+                except Exception:
+                    pass
                 for line in resp.iter_lines():
                     if not line:
                         continue

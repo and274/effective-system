@@ -1,0 +1,2 @@
+# Bash entrypoints edited on Windows must stay LF for Linux deploy (avoid ^M / env: bash\r).
+*.sh text eol=lf

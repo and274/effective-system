@@ -29,12 +29,11 @@ fi
 # shellcheck disable=SC1091
 source venv/bin/activate
 pip install -r requirements.txt
-GUNICORN="$ROOT/backend/venv/bin/gunicorn"
+chmod +x "$ROOT/backend/run-gunicorn.sh"
+# 统一经 run-gunicorn.sh 注入 PYTHONUTF8 / PYTHONIOENCODING（修复中文 SSE / 日志 ascii 报错）
 if pm2 describe zhimedia-backend >/dev/null 2>&1; then
-  pm2 restart zhimedia-backend --update-env
-else
-  pm2 start "$GUNICORN" --name zhimedia-backend --cwd "$ROOT/backend" --interpreter none -- \
-    -k gevent -w 2 -b 127.0.0.1:5000 app:app
+  pm2 delete zhimedia-backend
 fi
+pm2 start "$ROOT/backend/run-gunicorn.sh" --name zhimedia-backend --interpreter bash
 
 pm2 list

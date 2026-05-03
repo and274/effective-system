@@ -1,6 +1,21 @@
 import json
 import logging
+import sys
 import time
+
+
+def _ensure_stdio_utf8() -> None:
+    """避免 Windows / locale=C 下 stderr 为 ascii 时，logging/traceback 含中文触发 UnicodeEncodeError。"""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            reconfigure = getattr(stream, "reconfigure", None)
+            if callable(reconfigure):
+                reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
+_ensure_stdio_utf8()
 
 from flask import Flask, Response, jsonify, request, stream_with_context
 from flask_cors import CORS
@@ -27,8 +42,8 @@ logger = logging.getLogger("zhimei-backend")
 
 
 def _sse_utf8(text: str) -> bytes:
-    """SSE 正文强制 UTF-8 字节，避免部分 WSGI/worker 将 str 按 ascii/latin-1 编码报错。"""
-    return text.encode("utf-8")
+    """SSE 正文强制 UTF-8 字节；非法代理字符用替换避免 encode 异常。"""
+    return (text or "").encode("utf-8", errors="replace")
 
 
 def error_response(code: str, message: str, status: int, details: dict | None = None):
@@ -423,6 +438,7 @@ def chat_stream():
         stream_with_context(generate_bytes()),
         content_type="text/event-stream; charset=utf-8",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        direct_passthrough=True,
     )
 
 
