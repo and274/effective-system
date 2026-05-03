@@ -5,7 +5,14 @@ set -e
 
 ROOT="/var/www/zhimedia-sandbox"
 cd "$ROOT"
-git pull origin main
+# deploy-remote.ps1 already ran git pull; skip second hit to flaky GitHub from same deploy.
+if [[ "${SKIP_GIT_PULL:-}" != "1" ]]; then
+  for _try in 1 2 3; do
+    git pull origin main && break
+    [[ $_try -eq 3 ]] && exit 1
+    sleep 5
+  done
+fi
 
 cd "$ROOT/frontend"
 npm install --production

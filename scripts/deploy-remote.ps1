@@ -65,7 +65,8 @@ if (-not $SkipChown) {
   $chownPart = "sudo chown -R ${user}:${user} '${remoteRoot}' && "
 }
 
-$remoteBash = "${chownPart}set -e && cd '${remoteRoot}' && git pull origin main && bash deploy.sh"
+# One git pull here; deploy.sh skips its own pull when SKIP_GIT_PULL=1 (avoids double GitHub TLS on flaky links).
+$remoteBash = "${chownPart}set -e && cd '${remoteRoot}' && git pull origin main && SKIP_GIT_PULL=1 bash deploy.sh"
 
 Write-Host "Remote: $sshTarget" -ForegroundColor Cyan
 Write-Host $remoteBash -ForegroundColor DarkGray
