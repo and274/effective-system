@@ -29,7 +29,6 @@ const transporter = nodemailer.createTransport({
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.resolve(__dirname)));
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -257,6 +256,9 @@ app.post("/auth/update-password", (req, res) => {
   saveUsers(users);
   return res.json({ ok: true, user: sanitizeUser(users[idx]) });
 });
+
+// Serve static files after API routes so POST /mail-api/* is never shadowed.
+app.use(express.static(path.resolve(__dirname)));
 
 app.listen(port, () => {
   console.log(`Server running at http://127.0.0.1:${port}`);
