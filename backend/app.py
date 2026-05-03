@@ -19,6 +19,7 @@ Config.validate()
 app = Flask(__name__)
 app.config.from_object(Config)
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 限制请求体 2MB
+app.config["JSON_ASCII"] = False  # JSON 响应保留中文，避免 \u 转义
 
 CORS(app, origins=Config.CORS_ORIGINS)
 logging.basicConfig(level=getattr(logging, Config.LOG_LEVEL.upper(), logging.INFO))
@@ -392,13 +393,27 @@ def chat_stream():
             yield f"event: npc_events\ndata: {json.dumps({'npc_events': final_data['npc_events']}, ensure_ascii=False)}\n\n"
         if final_data.get("resolution_results"):
             yield f"event: resolution\ndata: {json.dumps({'resolution_results': final_data['resolution_results']}, ensure_ascii=False)}\n\n"
-        yield f"event: done\ndata: {json.dumps({'message': 'complete', 'sessionId': state.session_id, 'sceneId': record['scene_id'], 'playerId': player['player_id'], 'externalUser': external_user})}\n\n"
+        yield (
+            "event: done\ndata: "
+            + json.dumps(
+                {
+                    "message": "complete",
+                    "sessionId": state.session_id,
+                    "sceneId": record["scene_id"],
+                    "playerId": player["player_id"],
+                    "externalUser": external_user,
+                },
+                ensure_ascii=False,
+            )
+            + "\n\n"
+        )
         elapsed_ms = int((time.perf_counter() - started) * 1000)
         logger.info("stream ok scene=%s session=%s elapsed_ms=%s", record["scene_id"], state.session_id, elapsed_ms)
 
+    # 必须声明 UTF-8，否则 Werkzeug 把 SSE 正文按 latin-1/ascii 编码会在中国文 token 上触发 UnicodeEncodeError
     return Response(
         stream_with_context(generate()),
-        mimetype="text/event-stream",
+        content_type="text/event-stream; charset=utf-8",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
