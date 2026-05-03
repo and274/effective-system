@@ -34,6 +34,12 @@ node server.js
 
 参考 `docs/nginx-front-back-integration.conf`。
 
+### 服务器 `deploy.sh`（仓库根目录）
+
+- 路径示例：`/var/www/zhimedia-sandbox/deploy.sh`；首次在服务器可执行：`chmod +x deploy.sh`。
+- 脚本会：`git pull`、`npm install`、`pip install`，并对 PM2：**若进程不存在则 `start`，存在则 `restart`**（避免空列表时 `restart` 报 not found）。
+- 前端默认端口 **`PORT=3000`**（可在运行前 `export PORT=...` 覆盖）。
+
 ---
 
 ## 代码与「环境 / 本地数据」如何对齐云端
